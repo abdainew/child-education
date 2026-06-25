@@ -153,10 +153,10 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .btn-skip:active{background:rgba(255,255,255,.4);transform:scale(.95)}
 
 /* INTRO OVERLAY */
-#introOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:24;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78bfa,#818cf8,#f9a8d4);padding:20px}
+#introOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:24;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78bfa,#818cf8,#f9a8d4);padding:clamp(10px,2vw,20px)}
 #introOverlay.active{display:flex}
-.intro-content{display:flex;gap:clamp(12px,3vw,24px);flex-wrap:wrap;justify-content:center;align-items:center;min-height:clamp(120px,30vw,200px);width:100%}
-.intro-elem{border-radius:50%;width:clamp(70px,18vw,120px);height:clamp(70px,18vw,120px);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(28px,7vw,48px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);opacity:0;transform:scale(0);transition:opacity .4s,transform .4s}
+.intro-content{display:flex;gap:clamp(10px,2vw,20px);flex-wrap:wrap;justify-content:center;align-items:center;min-height:auto;width:100%}
+.intro-elem{border-radius:50%;width:clamp(56px,15vw,100px);height:clamp(56px,15vw,100px);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(22px,6vw,40px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);opacity:0;transform:scale(0);transition:opacity .4s,transform .4s}
 .intro-elem.show{opacity:1;transform:scale(1)}
 .intro-elem.rounded{border-radius:16px}
 .intro-elem .ilabel{font-size:clamp(10px,2.5vw,16px);font-weight:600;margin-top:2px;opacity:.9}
@@ -165,8 +165,8 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .intro-btn-skip:active{background:rgba(255,255,255,.4);transform:scale(.95)}
 
 @media(max-width:480px){
-  .intro-content{gap:8px}
-  .intro-elem{width:clamp(55px,15vw,90px);height:clamp(55px,15vw,90px);font-size:clamp(22px,6vw,36px)}
+  .intro-content{gap:6px}
+  .intro-elem{width:clamp(46px,13vw,76px);height:clamp(46px,13vw,76px);font-size:clamp(18px,5vw,30px)}
 }
 
 /* CALM CORNER */
@@ -196,6 +196,8 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
   #home .btn-start{padding:clamp(12px,3vw,20px) clamp(26px,7vw,54px)}
   .sticker-grid{gap:6px}
   .sticker{width:clamp(30px,7vw,44px);height:clamp(30px,7vw,44px);font-size:clamp(16px,4vw,24px)}
+  .intro-narration{font-size:clamp(14px,3.5vw,20px);min-height:clamp(36px,8vw,50px);margin-top:clamp(8px,2vw,16px)}
+  .intro-btn-skip{bottom:clamp(8px,2vw,16px);right:clamp(8px,2vw,16px);font-size:clamp(12px,3vw,16px);padding:clamp(6px,1.5vw,10px) clamp(14px,3.5vw,24px)}
 }
 @media(min-height:750px){
   .game-header{margin-bottom:10px}
@@ -417,7 +419,7 @@ function speakWarm(text){
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
-  u.lang='id-ID';u.rate=0.62;u.pitch=1.35;u.volume=1;
+  u.lang='id-ID';u.rate=0.7;u.pitch=1.3;u.volume=1;
   window.speechSynthesis.speak(u);
 }
 
@@ -606,37 +608,37 @@ const INTRO_SEQS = [
   // Level 0: Kenal Warna
   [
     {t:0, say:"Adek... yuk kita belajar warna-warna..."},
-    {t:2000, elem:{color:'#EF4444', label:'Merah'}, say:"Ini warna merah"},
-    {t:4000, elem:{color:'#3B82F6', label:'Biru'}, say:"Ini warna biru"},
-    {t:6000, elem:{color:'#F59E0B', label:'Kuning'}, say:"Ini warna kuning"},
-    {t:8000, elem:{color:'#10B981', label:'Hijau'}, say:"Dan ini warna hijau"},
-    {t:9500, say:"Ayo cari warna yang disebut... Adek pasti bisa!"},
+    {t:2200, elem:{color:'#EF4444', label:'Merah'}, say:"Ini warna merah"},
+    {t:4400, elem:{color:'#3B82F6', label:'Biru'}, say:"Ini warna biru"},
+    {t:6600, elem:{color:'#F59E0B', label:'Kuning'}, say:"Ini warna kuning"},
+    {t:8800, elem:{color:'#10B981', label:'Hijau'}, say:"Dan ini warna hijau"},
+    {t:10500, say:"Ayo cari warna yang disebut... Adek pasti bisa!"},
   ],
   // Level 1: Kenal Angka
   [
     {t:0, say:"Adek... sekarang kita belajar angka yuk..."},
-    {t:2000, elem:{num:'1', color:'#8B5CF6', label:''}, say:"Ini angka satu"},
-    {t:4000, elem:{num:'2', color:'#EC4899', label:''}, say:"Ini angka dua"},
-    {t:6000, elem:{num:'3', color:'#F59E0B', label:''}, say:"Ini angka tiga"},
-    {t:8000, elem:{num:'4', color:'#3B82F6', label:''}, say:"Ini angka empat... dan lima!"},
-    {t:9000, elem:{num:'5', color:'#10B981', label:''}, say:""},
-    {t:10000, say:"Ayo cari angkanya... Adek hebat!"},
+    {t:2200, elem:{num:'1', color:'#8B5CF6', label:''}, say:"Ini angka satu"},
+    {t:4400, elem:{num:'2', color:'#EC4899', label:''}, say:"Ini angka dua"},
+    {t:6600, elem:{num:'3', color:'#F59E0B', label:''}, say:"Ini angka tiga"},
+    {t:8800, elem:{num:'4', color:'#3B82F6', label:''}, say:"Ini angka empat... dan lima!"},
+    {t:9900, elem:{num:'5', color:'#10B981', label:''}, say:""},
+    {t:11000, say:"Ayo cari angkanya... Adek hebat!"},
   ],
   // Level 2: Warna + Angka
   [
     {t:0, say:"Adek... warna dan angka digabung yuk..."},
-    {t:2000, elem:{num:'1', color:'#EF4444', label:'Merah'}, say:"Angka satu warna merah"},
-    {t:4000, elem:{num:'2', color:'#3B82F6', label:'Biru'}, say:"Angka dua warna biru"},
-    {t:6000, elem:{num:'3', color:'#F59E0B', label:'Kuning'}, say:"Angka tiga warna kuning"},
-    {t:8000, elem:{num:'4', color:'#10B981', label:'Hijau'}, say:"Angka empat warna hijau"},
-    {t:9500, say:"Ayo cari angka dengan warna yang tepat... Adek pasti bisa!"},
+    {t:2200, elem:{num:'1', color:'#EF4444', label:'Merah'}, say:"Angka satu warna merah"},
+    {t:4400, elem:{num:'2', color:'#3B82F6', label:'Biru'}, say:"Angka dua warna biru"},
+    {t:6600, elem:{num:'3', color:'#F59E0B', label:'Kuning'}, say:"Angka tiga warna kuning"},
+    {t:8800, elem:{num:'4', color:'#10B981', label:'Hijau'}, say:"Angka empat warna hijau"},
+    {t:10500, say:"Ayo cari angka dengan warna yang tepat... Adek pasti bisa!"},
   ],
   // Level 3: Dua Langkah
   [
     {t:0, say:"Adek... sekarang kita belajar dua langkah..."},
-    {t:2000, elem:{color:'#EF4444', label:'Langkah 1: Pilih Warna'}, say:"Pertama... pilih warna yang disebut"},
+    {t:2200, elem:{color:'#EF4444', label:'Langkah 1: Pilih Warna'}, say:"Pertama... pilih warna yang disebut"},
     {t:5500, elem:{num:'➡️', color:'#8B5CF6', label:'Langkah 2: Pilih Angka'}, say:"Kedua... lalu pilih angkanya"},
-    {t:8500, say:"Ikuti dua instruksi berurutan ya... ayo main!"},
+    {t:9500, say:"Ikuti dua instruksi berurutan ya... ayo main!"},
   ],
 ];
 
@@ -693,7 +695,7 @@ function runIntro(lv, callback){
   // auto-end
   introTimer = setTimeout(() => {
     if(!window._introSkip) finishIntro();
-  }, 11500);
+  }, 13000);
 }
 
 function skipIntro(){
