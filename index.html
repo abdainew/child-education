@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petualangan Warna & Angka</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;touch-action:manipulation}
+body{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;justify-content:center;align-items:center;user-select:none;-webkit-user-select:none}
+
+#app{width:100%;height:100dvh;max-width:800px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;position:absolute;top:0;left:0}
+.screen.active{display:flex}
+
+/* HOME */
+#home{background:linear-gradient(135deg,#667eea,#764ba2)}
+#home .logo{font-size:clamp(60px,15vw,100px);margin-bottom:10px;animation:bounce 2s infinite}
+#home h1{font-size:clamp(24px,6vw,42px);color:#fff;text-align:center;font-weight:800;text-shadow:0 4px 15px rgba(0,0,0,.25);line-height:1.2;margin-bottom:8px}
+#home .sub{font-size:clamp(14px,3.5vw,20px);color:rgba(255,255,255,.85);margin-bottom:30px;text-align:center}
+#home .btn-start{background:linear-gradient(135deg,#F59E0B,#EF4444);border:none;color:#fff;font-size:clamp(28px,7vw,48px);font-weight:800;padding:clamp(16px,4vw,28px) clamp(40px,10vw,80px);border-radius:60px;cursor:pointer;box-shadow:0 8px 30px rgba(239,68,68,.5);transition:transform .2s;letter-spacing:2px}
+#home .btn-start:active{transform:scale(.95)}
+#home .stars-row{font-size:clamp(16px,4vw,28px);margin-top:20px;color:rgba(255,255,255,.7);letter-spacing:4px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+
+/* LEVEL SELECT */
+#levelSelect{background:linear-gradient(135deg,#667eea,#764ba2)}
+#levelSelect h2{font-size:clamp(20px,5vw,36px);color:#fff;font-weight:800;margin-bottom:clamp(12px,3vw,24px);text-shadow:0 3px 10px rgba(0,0,0,.2)}
+.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,20px);width:100%;max-width:500px}
+.level-card{background:#fff;border-radius:24px;padding:clamp(16px,4vw,28px);cursor:pointer;box-shadow:0 6px 25px rgba(0,0,0,.15);transition:transform .2s,opacity .3s;text-align:center;border:4px solid transparent}
+.level-card:active{transform:scale(.95)}
+.level-card .icon{font-size:clamp(36px,9vw,56px)}
+.level-card .name{font-size:clamp(13px,3.2vw,20px);font-weight:700;color:#333;margin-top:6px}
+.level-card .stars{font-size:clamp(12px,3vw,18px);margin-top:4px;color:#F59E0B}
+
+/* GAME */
+#game{background:linear-gradient(180deg,#667eea,#5a67d8);padding:clamp(12px,3vw,20px)}
+.game-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:clamp(8px,2vw,16px)}
+.game-header .level-label{font-size:clamp(14px,3.5vw,22px);font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.game-header .dots{display:flex;gap:6px}
+.game-header .dot{width:clamp(10px,2.5vw,16px);height:clamp(10px,2.5vw,16px);border-radius:50%;background:rgba(255,255,255,.3);transition:background .3s}
+.game-header .dot.done{background:#F59E0B;box-shadow:0 0 10px rgba(245,158,11,.6)}
+.game-header .dot.wrong{background:#EF4444}
+.instruction-area{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0}
+.instruction-text{font-size:clamp(20px,5vw,36px);font-weight:700;color:#fff;text-align:center;text-shadow:0 3px 12px rgba(0,0,0,.2);margin-bottom:clamp(8px,2vw,16px);line-height:1.3}
+.btn-replay{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50%;width:clamp(44px,10vw,60px);height:clamp(44px,10vw,60px);font-size:clamp(20px,5vw,30px);cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+.btn-replay:active{background:rgba(255,255,255,.35)}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,2.5vw,18px);width:100%;padding:clamp(8px,2vw,16px) 0;flex-shrink:0}
+.option-btn{height:clamp(70px,16vh,130px);border-radius:20px;border:4px solid rgba(255,255,255,.3);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);transition:transform .15s,border-color .2s,opacity .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background-clip:padding-box}
+.option-btn:active{transform:scale(.92)}
+.option-btn .option-value{font-size:clamp(36px,9vw,64px);line-height:1;transition:transform .3s}
+.option-btn .option-label{font-size:clamp(12px,3vw,18px);font-weight:600;margin-top:4px;opacity:.9}
+.option-btn.correct{border-color:#10B981;animation:pulse .5s;z-index:2}
+.option-btn.wrong{border-color:#EF4444;animation:shake .4s}
+.option-btn.hint-glow{border-color:#F59E0B;animation:glowPulse .8s}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 10px rgba(245,158,11,.4)}50%{box-shadow:0 0 30px rgba(245,158,11,.8)}}
+
+/* CELEBRATION OVERLAY */
+#celebration{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;display:none}
+#celebration.active{display:block}
+.confetti{position:absolute;width:10px;height:10px;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* COMPLETE */
+#complete{background:linear-gradient(135deg,#667eea,#764ba2)}
+#complete .big-emoji{font-size:clamp(60px,15vw,100px);margin-bottom:10px}
+#complete h2{font-size:clamp(24px,6vw,40px);color:#fff;font-weight:800;margin-bottom:4px;text-shadow:0 3px 10px rgba(0,0,0,.2)}
+#complete .msg{font-size:clamp(16px,4vw,24px);color:rgba(255,255,255,.9);margin-bottom:clamp(12px,3vw,24px);text-align:center}
+#complete .stars-show{font-size:clamp(40px,10vw,70px);margin-bottom:clamp(16px,4vw,30px);letter-spacing:8px}
+#complete .score-detail{font-size:clamp(14px,3.5vw,20px);color:rgba(255,255,255,.85);margin-bottom:clamp(16px,4vw,28px)}
+.complete-btns{display:flex;gap:clamp(12px,3vw,20px);flex-wrap:wrap;justify-content:center}
+.btn-primary,.btn-secondary{border:none;border-radius:40px;font-weight:700;cursor:pointer;transition:transform .2s;font-size:clamp(16px,4vw,24px);padding:clamp(12px,3vw,20px) clamp(24px,6vw,48px)}
+.btn-primary{background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;box-shadow:0 6px 20px rgba(239,68,68,.4)}
+.btn-secondary{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3)}
+.btn-primary:active,.btn-secondary:active{transform:scale(.93)}
+
+@media(max-width:480px){
+  .screen{padding:12px}
+  .instruction-text{font-size:clamp(18px,4.5vw,28px)}
+  .options-grid{gap:6px;padding:4px 0}
+  .option-btn{height:clamp(65px,15vh,110px);border-radius:16px;border-width:3px}
+  .option-btn .option-value{font-size:clamp(28px,8vw,48px)}
+  #game{padding:clamp(8px,2vw,16px)}
+  .game-header{margin-bottom:4px}
+  #home .btn-start{padding:clamp(14px,3.5vw,22px) clamp(30px,8vw,60px)}
+}
+@media(min-height:800px){
+  .game-header{margin-bottom:12px}
+  .options-grid{padding:12px 0;gap:14px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="celebration"></div>
+
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <div class="logo">🌟</div>
+    <h1>Petualangan<br>Warna & Angka</h1>
+    <div class="sub">Ayo belajar sambil bermain!</div>
+    <button class="btn-start" onclick="goLevelSelect()">Mulai</button>
+    <div class="stars-row">⭐⭐⭐</div>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div id="levelSelect" class="screen">
+    <h2>Pilih Level</h2>
+    <div class="level-grid" id="levelGrid"></div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="screen">
+    <div class="game-header">
+      <div class="level-label" id="levelLabel">Level 1</div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="instruction-area">
+      <div class="instruction-text" id="instructionText">Pilih warna merah!</div>
+      <button class="btn-replay" onclick="replayInstruction()" id="replayBtn">🔊</button>
+    </div>
+    <div class="options-grid" id="optionsGrid"></div>
+  </div>
+
+  <!-- COMPLETE -->
+  <div id="complete" class="screen">
+    <div class="big-emoji" id="completeEmoji">🎉</div>
+    <h2 id="completeTitle">Level Selesai!</h2>
+    <div class="msg" id="completeMsg">Kamu hebat!</div>
+    <div class="stars-show" id="completeStars">⭐⭐⭐</div>
+    <div class="score-detail" id="scoreDetail">5 dari 5 benar</div>
+    <div class="complete-btns" id="completeBtns"></div>
+  </div>
+</div>
+
+<script>
+// ===== CONSTANTS =====
+const COLORS = [
+  { id:'merah', name:'Merah', hex:'#EF4444' },
+  { id:'biru',  name:'Biru',  hex:'#3B82F6' },
+  { id:'kuning',name:'Kuning',hex:'#F59E0B' },
+  { id:'hijau', name:'Hijau', hex:'#10B981' },
+];
+
+const LEVELS = [
+  { id:0, name:'Kenal Warna', icon:'🔴', desc:'Cari warna yang disebut' },
+  { id:1, name:'Kenal Angka', icon:'1️⃣', desc:'Cari angka yang disebut' },
+  { id:2, name:'Warna + Angka', icon:'🎨', desc:'Cari angka dengan warna tertentu' },
+  { id:3, name:'Dua Langkah', icon:'🦶', desc:'Ikuti dua instruksi berurutan' },
+];
+
+const NUMBERS = [1,2,3,4,5];
+const TOTAL_ROUNDS = 5;
+const STARS_3 = 5;
+const STARS_2 = 4;
+
+// ===== STATE =====
+let state = {
+  currentLevel: 0,
+  currentRound: 0,
+  correctCount: 0,
+  subStep: 0,
+  subSteps: [],
+  questionData: null,
+  isProcessing: false,
+  levelProgress: [false,false,false,false],
+  levelStars: [0,0,0,0],
+};
+
+// ===== SPEECH =====
+function speak(text, rate=0.85, pitch=1.15) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'id-ID';
+  u.rate = rate;
+  u.pitch = pitch;
+  u.volume = 1;
+  window.speechSynthesis.speak(u);
+}
+
+// ===== UTILITY =====
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}
+  return arr;
+}
+function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function getStars(correct){
+  if(correct>=STARS_3) return 3;
+  if(correct>=STARS_2) return 2;
+  return 1;
+}
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== HOME =====
+function goLevelSelect(){
+  hideCelebration();
+  showScreen('levelSelect');
+  renderLevelSelect();
+}
+
+// ===== LEVEL SELECT =====
+function renderLevelSelect(){
+  const grid = document.getElementById('levelGrid');
+  grid.innerHTML = '';
+  LEVELS.forEach((lv,i)=>{
+    const starCount = state.levelStars[i]||0;
+    const card = document.createElement('div');
+    card.className = 'level-card';
+    card.innerHTML = `
+      <div class="icon">${lv.icon}</div>
+      <div class="name">${lv.name}</div>
+      <div class="stars">${'⭐'.repeat(starCount)}${'☆'.repeat(3-starCount)}</div>
+    `;
+    card.onclick = ()=>startLevel(i);
+    grid.appendChild(card);
+  });
+}
+
+// ===== LEVEL GENERATORS =====
+function genColorRound(round){
+  const shuffled = shuffle([...COLORS]);
+  const correct = shuffled[0];
+  return { options:shuffled, correctIdx:0, instruction:`Pilih warna ${correct.name}!` };
+}
+
+function genNumberRound(round){
+  const available = shuffle([...NUMBERS]);
+  const correct = available[0];
+  let options = [correct];
+  const rest = NUMBERS.filter(n=>n!==correct);
+  shuffle(rest);
+  options.push(rest[0],rest[1],rest[2]);
+  shuffle(options);
+  const correctIdx = options.indexOf(correct);
+  return { options, correctIdx, instruction:`Mana angka ${correct}?` };
+}
+
+function genColorNumberRound(round){
+  const color = pickRandom(COLORS);
+  const number = pickRandom(NUMBERS);
+  const correct = { number, color };
+  let distractorColors = COLORS.filter(c=>c.id!==color.id);
+  shuffle(distractorColors);
+  let distractorNumbers = NUMBERS.filter(n=>n!==number);
+  shuffle(distractorNumbers);
+  const options = [
+    correct,
+    { number:distractorNumbers[0], color },
+    { number:distractorNumbers[1], color:distractorColors[0] },
+    { number:distractorNumbers[2], color:distractorColors[1] },
+  ];
+  shuffle(options);
+  const correctIdx = options.findIndex(o=>o.number===number&&o.color.id===color.id);
+  return { options, correctIdx, instruction:`Pilih angka ${number} warna ${color.name}!` };
+}
+
+function genTwoStepRound(round){
+  const color = pickRandom(COLORS);
+  const number = pickRandom(NUMBERS);
+  return {
+    steps:[
+      { type:'color', target:color, options:shuffle([...COLORS]), instruction:`Sentuh warna ${color.name}!` },
+      { type:'number', target:number, options:shuffle([...NUMBERS]), instruction:`Sekarang sentuh angka ${number}!` },
+    ]
+  };
+}
+
+function getLevelQuestions(level){
+  const qs = [];
+  for(let r=0;r<TOTAL_ROUNDS;r++){
+    if(level===0) qs.push(genColorRound(r));
+    else if(level===1) qs.push(genNumberRound(r));
+    else if(level===2) qs.push(genColorNumberRound(r));
+    else if(level===3) qs.push(genTwoStepRound(r));
+  }
+  return qs;
+}
+
+// ===== GAME ENGINE =====
+let questions = [];
+
+function startLevel(lv){
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  hideCelebration();
+  state.currentLevel = lv;
+  state.currentRound = 0;
+  state.correctCount = 0;
+  state.subStep = 0;
+  state.isProcessing = false;
+  questions = getLevelQuestions(lv);
+  showScreen('game');
+  renderHeader();
+  showQuestion();
+}
+
+function renderHeader(){
+  const lv = LEVELS[state.currentLevel];
+  document.getElementById('levelLabel').textContent = `Level ${state.currentLevel+1}: ${lv.icon} ${lv.name}`;
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+  for(let i=0;i<TOTAL_ROUNDS;i++){
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    if(i<state.currentRound) dot.classList.add('done');
+    dots.appendChild(dot);
+  }
+}
+
+function showQuestion(){
+  const q = questions[state.currentRound];
+  state.isProcessing = false;
+
+  if(state.currentLevel===3){
+    state.subStep = 0;
+    showTwoStepPart(q);
+  } else {
+    state.questionData = q;
+    renderOptions(q);
+    document.getElementById('instructionText').textContent = q.instruction;
+    speak(q.instruction);
+  }
+}
+
+function showTwoStepPart(q){
+  state.isProcessing = false;
+  const step = q.steps[state.subStep];
+  state.questionData = null;
+
+  if(step.type==='color'){
+    const optData = step.options.map(c=>({ value:c.name, color:c.hex, id:c.id, label:'' }));
+    renderRawOptions(optData, (idx)=>{
+      if(state.isProcessing) return;
+      const chosen = step.options[idx];
+      if(chosen.id===step.target.id){
+        state.isProcessing = true;
+        const btn = document.querySelectorAll('.option-btn')[idx];
+        btn.classList.add('correct');
+        speak('Hebat!');
+        setTimeout(()=>{
+          state.subStep = 1;
+          showTwoStepPart(q);
+        },1200);
+      } else {
+        wrongAnswer(idx);
+      }
+    });
+    document.getElementById('instructionText').textContent = step.instruction;
+    speak(step.instruction);
+  } else {
+    const optData = step.options.map(n=>({ value:n, color:'#8B5CF6', id:n, label:'' }));
+    renderRawOptions(optData, (idx)=>{
+      if(state.isProcessing) return;
+      const chosen = step.options[idx];
+      if(chosen===step.target){
+        state.isProcessing = true;
+        const btn = document.querySelectorAll('.option-btn')[idx];
+        btn.classList.add('correct');
+        speak('Hebat!');
+        setTimeout(()=>{
+          state.correctCount++;
+          advanceRound();
+        },1200);
+      } else {
+        wrongAnswer(idx);
+      }
+    });
+    document.getElementById('instructionText').textContent = step.instruction;
+    speak(step.instruction);
+  }
+}
+
+function renderOptions(q){
+  renderRawOptions(q.options.map((o,i)=>{
+    if(state.currentLevel===0){
+      return { value:'', color:o.hex, id:o.id, label:o.name };
+    } else if(state.currentLevel===1){
+      return { value:o, color:'#8B5CF6', id:o, label:'' };
+    } else {
+      return { value:o.number, color:o.color.hex, id:o.number+o.color.id, label:o.color.name };
+    }
+  }), (idx)=>{
+    if(state.isProcessing) return;
+    if(idx===q.correctIdx){
+      state.isProcessing = true;
+      const btns = document.querySelectorAll('.option-btn');
+      btns[idx].classList.add('correct');
+      speak('Hebat!');
+      document.getElementById('instructionText').textContent = 'Hebat! 🎉';
+      setTimeout(()=>{
+        state.correctCount++;
+        advanceRound();
+      },1200);
+    } else {
+      wrongAnswer(idx);
+    }
+  });
+}
+
+function renderRawOptions(items, onClick){
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  items.forEach((item,i)=>{
+    const btn = document.createElement('div');
+    btn.className = 'option-btn';
+    btn.style.backgroundColor = item.color;
+    btn.innerHTML = `
+      <div class="option-value">${item.value}</div>
+      ${item.label ? `<div class="option-label">${item.label}</div>` : ''}
+    `;
+    btn.onclick = ()=>onClick(i);
+    grid.appendChild(btn);
+  });
+}
+
+function wrongAnswer(idx){
+  state.isProcessing = true;
+  const btns = document.querySelectorAll('.option-btn');
+  btns[idx].classList.add('wrong');
+  speak('Coba lagi!');
+  setTimeout(()=>{
+    btns[idx].classList.remove('wrong');
+    state.isProcessing = false;
+  },600);
+}
+
+function advanceRound(){
+  state.currentRound++;
+  if(state.currentRound>=TOTAL_ROUNDS){
+    showComplete();
+  } else {
+    renderHeader();
+    showQuestion();
+  }
+}
+
+function replayInstruction(){
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if(state.currentLevel===3){
+    const q = questions[state.currentRound];
+    if(q){
+      const step = q.steps[state.subStep];
+      if(step) speak(step.instruction);
+    }
+  } else if(state.questionData){
+    speak(state.questionData.instruction);
+  }
+}
+
+// ===== COMPLETE =====
+function showComplete(){
+  showScreen('complete');
+  const correct = state.correctCount;
+  const stars = getStars(correct);
+  state.levelStars[state.currentLevel] = Math.max(state.levelStars[state.currentLevel]||0, stars);
+
+  const emojis = ['💪','👏','🎉','🌟','🏆'];
+  document.getElementById('completeEmoji').textContent = stars===3?'🏆':(stars===2?'🎉':'💪');
+  document.getElementById('completeTitle').textContent = stars===3?'Luar Biasa!':(stars===2?'Bagus!':'Ayo Lagi!');
+  const msgs = {
+    5:'Kamu hebat banget! Semua benar! 🎉',
+    4:'Hampir sempurna! Coba lagi! 💪',
+    3:'Bagus! Ayo latihan lagi!',
+  };
+  document.getElementById('completeMsg').textContent = msgs[correct]||`Kamu dapat ${correct} benar! Ayo coba lagi!`;
+  document.getElementById('completeStars').textContent = '⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('scoreDetail').textContent = `${correct} dari ${TOTAL_ROUNDS} benar`;
+
+  const btns = document.getElementById('completeBtns');
+  btns.innerHTML = '';
+  if(state.currentLevel<3){
+    const next = document.createElement('button');
+    next.className = 'btn-primary';
+    next.textContent = `Level ${state.currentLevel+2} →`;
+    next.onclick = ()=>startLevel(state.currentLevel+1);
+    btns.appendChild(next);
+  }
+  const retry = document.createElement('button');
+  retry.className = 'btn-secondary';
+  retry.textContent = '🔄 Ulang Level';
+  retry.onclick = ()=>startLevel(state.currentLevel);
+  btns.appendChild(retry);
+  const home = document.createElement('button');
+  home.className = 'btn-secondary';
+  home.textContent = '🏠 Home';
+  home.onclick = goLevelSelect;
+  btns.appendChild(home);
+
+  celebrate(stars===3?12:(stars===2?8:4));
+  speak(stars===3?'Hebat! Kamu luar biasa!':(stars===2?'Bagus sekali!':'Ayo coba lagi!'));
+}
+
+// ===== CELEBRATION =====
+function hideCelebration(){
+  const el = document.getElementById('celebration');
+  el.classList.remove('active');
+  el.innerHTML = '';
+}
+function celebrate(count=10){
+  const el = document.getElementById('celebration');
+  el.innerHTML = '';
+  el.classList.add('active');
+  const colors = ['#EF4444','#F59E0B','#10B981','#3B82F6','#EC4899','#8B5CF6','#fff'];
+  for(let i=0;i<count;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100+'%';
+    c.style.top = '-10px';
+    c.style.background = pickRandom(colors);
+    c.style.width = (6+Math.random()*8)+'px';
+    c.style.height = (6+Math.random()*8)+'px';
+    c.style.animationDuration = (1.5+Math.random()*2)+'s';
+    c.style.animationDelay = (Math.random()*0.5)+'s';
+    c.style.borderRadius = Math.random()>.5?'50%':'2px';
+    el.appendChild(c);
+  }
+  setTimeout(()=>{el.classList.remove('active');el.innerHTML='';},3000);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>{
+  renderLevelSelect();
+});
+</script>
+</body>
+</html>
