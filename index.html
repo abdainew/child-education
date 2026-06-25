@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Petualangan Warna & Angka</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js" defer></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;touch-action:manipulation}
@@ -12,8 +13,8 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 #app{width:100%;height:100dvh;max-width:800px;display:flex;flex-direction:column;position:relative;overflow:hidden}
 
 /* SCREENS + TRANSITIONS */
-.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;position:absolute;top:0;left:0;opacity:0;transition:opacity .35s ease,transform .35s ease;transform:scale(.97)}
-.screen.active{display:flex;opacity:1;transform:scale(1)}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;position:absolute;top:0;left:0}
+.screen.active{display:flex}
 
 /* CALM BUTTON (always visible top-right) */
 #calmBtn{position:absolute;top:clamp(8px,2vw,14px);right:clamp(8px,2vw,14px);z-index:20;width:clamp(40px,8vw,52px);height:clamp(40px,8vw,52px);border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.35);font-size:clamp(20px,4.5vw,28px);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -23,16 +24,7 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .mascot-wrap{position:absolute;bottom:clamp(8px,2vw,16px);left:clamp(8px,2vw,16px);z-index:12;pointer-events:none;display:flex;flex-direction:column;align-items:center;transition:opacity .3s}
 .mascot-wrap.hide{opacity:0;pointer-events:none}
 .mascot{font-size:clamp(40px,10vw,60px);transition:transform .3s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
-.mascot.idle{animation:mascotIdle 3s ease-in-out infinite}
-.mascot.happy{animation:mascotHappy .6s ease}
-.mascot.celebrate{animation:mascotCelebrate .8s ease}
-.mascot.encourage{animation:mascotEncourage .5s ease}
 .mascot-say{background:rgba(255,255,255,.85);border-radius:12px;padding:4px 10px;font-size:clamp(12px,2.5vw,16px);color:#6d28d9;font-weight:600;margin-top:2px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .3s}
-.mascot-say.show{opacity:1}
-@keyframes mascotIdle{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-3px) rotate(-3deg)}75%{transform:translateY(-3px) rotate(3deg)}}
-@keyframes mascotHappy{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-12px) scale(1.15)}}
-@keyframes mascotCelebrate{0%,25%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(-8deg)}75%{transform:translateY(-16px) rotate(8deg)}100%{transform:translateY(0) rotate(0)}}
-@keyframes mascotEncourage{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px) rotate(-5deg)}75%{transform:translateX(6px) rotate(5deg)}}
 
 /* HOME */
 #home{background:linear-gradient(135deg,#a78bfa,#f9a8d4)}
@@ -68,20 +60,14 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .btn-replay{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:50%;width:clamp(40px,9vw,56px);height:clamp(40px,9vw,56px);font-size:clamp(18px,4.5vw,26px);cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
 .btn-replay:active{background:rgba(255,255,255,.35)}
 .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,2vw,14px);width:100%;padding:clamp(6px,1.5vw,12px) 0;flex-shrink:0}
-.option-btn{height:clamp(65px,15vh,120px);border-radius:18px;border:4px solid rgba(255,255,255,.25);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.15);box-shadow:0 4px 16px rgba(0,0,0,.1);transition:transform .15s,border-color .2s,opacity .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background-clip:padding-box}
-.option-btn:active{transform:scale(.92)}
-.option-btn .option-value{font-size:clamp(32px,8vw,56px);line-height:1;transition:transform .3s}
+.option-btn{height:clamp(65px,15vh,120px);border-radius:18px;border:4px solid rgba(255,255,255,.25);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.15);box-shadow:0 4px 16px rgba(0,0,0,.1);position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background-clip:padding-box}
+.option-btn:active{filter:brightness(.85)}
+.option-btn .option-value{font-size:clamp(32px,8vw,56px);line-height:1}
 .option-btn .option-label{font-size:clamp(11px,2.5vw,16px);font-weight:600;margin-top:3px;opacity:.9}
-.option-btn.correct{border-color:#10B981;animation:pulse .5s;z-index:2}
-.option-btn.wrong{border-color:#EF4444;animation:shake .4s}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 
 /* CELEBRATION OVERLAY */
 #celebration{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:15;display:none}
 #celebration.active{display:block}
-.confetti{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear forwards}
-@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 
 /* COMPLETE */
 #complete{background:linear-gradient(135deg,#a78bfa,#f9a8d4)}
@@ -99,52 +85,33 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 /* BREATHING OVERLAY */
 #breathingOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:25;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#e0e7ff,#a78bfa);overflow:hidden}
 #breathingOverlay.active{display:flex}
-.breath-bg-circle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(160px,40vw,320px);height:clamp(160px,40vw,320px);border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(196,181,253,.5),rgba(124,58,237,.2));transition:width 3.2s ease,height 3.2s ease,opacity 3.2s ease;opacity:.6}
-.breath-bg-circle.inhale{width:clamp(260px,65vw,500px);height:clamp(260px,65vw,500px);opacity:.9}
-.breath-bg-circle.exhale{width:clamp(140px,35vw,280px);height:clamp(140px,35vw,280px);opacity:.4}
+.breath-bg-circle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(160px,40vw,320px);height:clamp(160px,40vw,320px);border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(196,181,253,.6),rgba(124,58,237,.25));opacity:.6;transition:width 3.2s ease,height 3.2s ease,opacity 3.2s ease}
 
 /* CHARACTER */
 .char-wrap{position:relative;display:flex;flex-direction:column;align-items:center;z-index:2;margin-top:clamp(-20px,-4vh,-10px)}
 .char-head{position:relative;width:clamp(100px,25vw,180px);height:clamp(100px,25vw,180px);border-radius:50%;background:linear-gradient(160deg,#ffe4cc,#ffd5b8);z-index:3;box-shadow:0 4px 20px rgba(0,0,0,.08);flex-shrink:0}
 .char-hair{position:absolute;top:clamp(-6px,-1.5vw,-4px);left:50%;transform:translateX(-50%);width:clamp(115px,28vw,200px);height:clamp(55px,13vw,90px);background:#8B5CF6;border-radius:50% 50% 0 0;z-index:4;box-shadow:0 -4px 12px rgba(139,92,246,.2)}
 .char-hair::after{content:'';position:absolute;top:clamp(8px,2vw,14px);left:clamp(8px,2vw,14px);width:clamp(12px,3vw,20px);height:clamp(6px,1.5vw,10px);background:rgba(255,255,255,.2);border-radius:50%;transform:rotate(-20deg)}
-.char-eye{position:absolute;top:clamp(28px,7vw,50px);width:clamp(8px,2vw,14px);height:clamp(10px,2.5vw,16px);background:#4A3728;border-radius:50%;transition:all .4s}
+.char-eye{position:absolute;top:clamp(28px,7vw,50px);width:clamp(8px,2vw,14px);height:clamp(10px,2.5vw,16px);background:#4A3728;border-radius:50%}
 .char-eye.left{left:clamp(22px,5.5vw,40px)}
 .char-eye.right{right:clamp(22px,5.5vw,40px)}
-.char-eye.exhale{height:clamp(6px,1.5vw,10px);border-radius:40%;top:clamp(30px,7.5vw,53px)}
 .char-pupil{position:absolute;top:2px;right:-2px;width:clamp(3px,.8vw,5px);height:clamp(3px,.8vw,5px);background:#fff;border-radius:50%}
-.char-cheek{position:absolute;top:clamp(40px,10vw,70px);width:clamp(14px,3.5vw,24px);height:clamp(10px,2.5vw,18px);background:rgba(255,144,144,.45);border-radius:50%;transition:all .4s}
+.char-cheek{position:absolute;top:clamp(40px,10vw,70px);width:clamp(14px,3.5vw,24px);height:clamp(10px,2.5vw,18px);background:rgba(255,144,144,.45);border-radius:50%}
 .char-cheek.left{left:clamp(10px,2.5vw,18px)}
 .char-cheek.right{right:clamp(10px,2.5vw,18px)}
-.char-cheek.inhale{transform:scale(1.3);opacity:.7}
-.char-mouth{position:absolute;bottom:clamp(20px,5vw,36px);left:50%;transform:translateX(-50%);width:clamp(18px,4.5vw,30px);height:clamp(9px,2.2vw,15px);background:#E88888;border-radius:0 0 50% 50%;transition:all .4s ease}
-.char-mouth.smile{border-radius:0 0 50% 50%;width:clamp(18px,4.5vw,30px);height:clamp(9px,2.2vw,15px)}
-.char-mouth.open{width:clamp(14px,3.5vw,22px);height:clamp(14px,3.5vw,22px);border-radius:50%;background:#D47777}
-.char-mouth.blow{width:clamp(10px,2.5vw,16px);height:clamp(8px,2vw,12px);border-radius:50%;background:#E88888;transform:translateX(-50%) scaleX(1.3)}
+.char-mouth{position:absolute;bottom:clamp(20px,5vw,36px);left:50%;transform:translateX(-50%);width:clamp(18px,4.5vw,30px);height:clamp(9px,2.2vw,15px);background:#E88888;border-radius:0 0 50% 50%}
 
 /* BODY */
 .char-body{position:relative;width:clamp(90px,22vw,160px);height:clamp(80px,20vw,140px);margin-top:clamp(-8px,-2vw,-4px);z-index:1;transition:width 3.2s ease,height 3.2s ease}
-.char-body.inhale{width:clamp(120px,30vw,210px);height:clamp(90px,22vw,155px)}
-.char-body.exhale{width:clamp(80px,20vw,145px);height:clamp(75px,18vw,130px)}
-.char-torso{width:100%;height:100%;background:linear-gradient(180deg,#C4B5FD,#A78BFA);border-radius:clamp(20px,5vw,36px) clamp(20px,5vw,36px) clamp(30px,7vw,50px) clamp(30px,7vw,50px);box-shadow:0 4px 20px rgba(0,0,0,.08);transition:border-radius 3.2s ease}
+.char-torso{width:100%;height:100%;background:linear-gradient(180deg,#C4B5FD,#A78BFA);border-radius:clamp(20px,5vw,36px) clamp(20px,5vw,36px) clamp(30px,7vw,50px) clamp(30px,7vw,50px);box-shadow:0 4px 20px rgba(0,0,0,.08)}
 
 /* ARMS */
-.char-arm{position:absolute;top:clamp(6px,1.5vw,10px);width:clamp(16px,4vw,28px);height:clamp(50px,12vw,90px);border-radius:clamp(10px,2.5vw,16px);background:linear-gradient(180deg,#ffd5b8,#e8c4a8);transform-origin:top center;transition:transform 3s ease;z-index:0}
+.char-arm{position:absolute;top:clamp(6px,1.5vw,10px);width:clamp(16px,4vw,28px);height:clamp(50px,12vw,90px);border-radius:clamp(10px,2.5vw,16px);background:linear-gradient(180deg,#ffd5b8,#e8c4a8);transform-origin:top center;z-index:0}
 .char-arm.left{left:clamp(-14px,-3.5vw,-8px);transform:rotate(12deg)}
 .char-arm.right{right:clamp(-14px,-3.5vw,-8px);transform:rotate(-12deg)}
-.char-arm.left.inhale{transform:rotate(-45deg)}
-.char-arm.right.inhale{transform:rotate(45deg)}
-.char-arm.left.exhale{transform:rotate(20deg)}
-.char-arm.right.exhale{transform:rotate(-20deg)}
 .char-arm .hand{position:absolute;bottom:clamp(-6px,-1.5vw,-4px);left:50%;transform:translateX(-50%);width:clamp(14px,3.5vw,24px);height:clamp(14px,3.5vw,24px);border-radius:50%;background:#ffd5b8;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-
-/* BREATH PUFFS */
 .breath-puffs{position:absolute;top:clamp(60px,15vw,110px);left:50%;z-index:5;pointer-events:none}
-.breath-puff{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);animation:puffFloat 1.8s ease-out forwards;opacity:0}
-.breath-puff:nth-child(1){width:clamp(12px,3vw,20px);height:clamp(12px,3vw,20px)}
-.breath-puff:nth-child(2){width:clamp(16px,4vw,26px);height:clamp(16px,4vw,26px)}
-.breath-puff:nth-child(3){width:clamp(10px,2.5vw,16px);height:clamp(10px,2.5vw,16px)}
-@keyframes puffFloat{0%{transform:translate(0,0) scale(.5);opacity:.6}100%{transform:translate(clamp(30px,8vw,60px),clamp(-40px,-10vw,-20px)) scale(1.5);opacity:0}}
+.breath-puff{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);opacity:0;width:clamp(10px,2.5vw,18px);height:clamp(10px,2.5vw,18px)}
 
 /* BREATHING TEXT */
 .breathing-text{font-size:clamp(24px,6vw,40px);font-weight:700;color:#fff;margin-top:clamp(12px,3vw,24px);text-shadow:0 3px 12px rgba(0,0,0,.18);z-index:2}
@@ -156,8 +123,7 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 #introOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:24;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78bfa,#818cf8,#f9a8d4);padding:clamp(10px,2vw,20px)}
 #introOverlay.active{display:flex}
 .intro-content{display:flex;gap:clamp(10px,2vw,20px);flex-wrap:wrap;justify-content:center;align-items:center;min-height:auto;width:100%}
-.intro-elem{border-radius:50%;width:clamp(56px,15vw,100px);height:clamp(56px,15vw,100px);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(22px,6vw,40px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);opacity:0;transform:scale(0);transition:opacity .4s,transform .4s}
-.intro-elem.show{opacity:1;transform:scale(1)}
+.intro-elem{border-radius:50%;width:clamp(56px,15vw,100px);height:clamp(56px,15vw,100px);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(22px,6vw,40px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .intro-elem.rounded{border-radius:16px}
 .intro-elem .ilabel{font-size:clamp(10px,2.5vw,16px);font-weight:600;margin-top:2px;opacity:.9}
 .intro-narration{font-size:clamp(18px,4.5vw,30px);font-weight:700;color:#fff;text-align:center;margin-top:clamp(16px,4vw,28px);text-shadow:0 3px 12px rgba(0,0,0,.15);min-height:clamp(48px,10vw,72px);line-height:1.4;max-width:90%}
@@ -438,9 +404,23 @@ function pujianRandom(){
 function mascotSet(anim,text){
   const el=document.getElementById('mascot');
   const say=document.getElementById('mascotSay');
-  el.className='mascot';
-  if(anim)el.classList.add(anim);
-  if(text){say.textContent=text;say.classList.add('show')}else{say.classList.remove('show')}
+  anime.remove(el);
+  el.style.transform='';
+  if(anim==='idle'){
+    anime({targets:el,translateY:[0,-4,0],rotate:[-2,2,-2],duration:3000,loop:true,easing:'easeInOutSine'});
+  }else if(anim==='happy'){
+    anime({targets:el,translateY:[0,-15,0],scale:[1,1.15,1],duration:600,easing:'easeOutBack'});
+  }else if(anim==='celebrate'){
+    anime({targets:el,translateY:[0,-18,0],rotate:[-10,10,-10,0],duration:800,easing:'easeOutCubic'});
+  }else if(anim==='encourage'){
+    anime({targets:el,translateX:[-8,8,-8,0],rotate:[-6,6,-6,0],duration:500,easing:'easeOutCubic'});
+  }
+  if(text){
+    say.textContent=text;
+    anime({targets:say,opacity:[0,1],translateY:[4,0],duration:300,easing:'easeOutQuad'});
+  }else{
+    anime({targets:say,opacity:[1,0],duration:200,easing:'easeInQuad',complete:()=>{say.textContent=''}});
+  }
 }
 function mascotReaction(type){
   if(type==='correct'){
@@ -473,8 +453,14 @@ function renderStickers(){
 
 // ===== SCREEN MANAGEMENT =====
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const prev = document.querySelector('.screen.active');
+  const next = document.getElementById(id);
+  if(prev){
+    anime({targets:prev,opacity:[1,0],scale:[1,.92],duration:250,easing:'easeOutCubic',complete:()=>prev.classList.remove('active')});
+  }
+  next.style.opacity=0;next.style.transform='scale(1.08)';
+  next.classList.add('active');
+  anime({targets:next,opacity:[0,1],scale:[1.08,1],duration:300,easing:'easeOutBack'});
   document.querySelector('.mascot-wrap').classList.toggle('hide', id==='game');
 }
 
@@ -530,62 +516,50 @@ function runBreathingCycle(cycle){
   const armR=document.getElementById('charArmR');
   const puffs=document.getElementById('breathPuffs');
 
-  function resetChar(){
-    mouth.className='char-mouth smile';
-    bodyEl.className='char-body';
-    armL.className='char-arm left';
-    armR.className='char-arm right';
-    circ.className='breath-bg-circle';
-    puffs.innerHTML='';
-  }
-  function doInhale(){
-    resetChar();
-    circ.className='breath-bg-circle inhale';
-    bodyEl.className='char-body inhale';
-    armL.className='char-arm left inhale';
-    armR.className='char-arm right inhale';
-    mouth.className='char-mouth open';
-    text.textContent='Tarik napas...';
-    sub.textContent='hirup perlahan, ikuti gerakannya';
-    speak('Tarik napas',.7,1.1);
-  }
-  function doHold(){
-    mouth.className='char-mouth open';
-    text.textContent='Tahan...';
-    sub.textContent='tahan sebentar';
-  }
-  function doExhale(){
-    circ.className='breath-bg-circle exhale';
-    bodyEl.className='char-body exhale';
-    armL.className='char-arm left exhale';
-    armR.className='char-arm right exhale';
-    mouth.className='char-mouth blow';
-    text.textContent='Hembuskan...';
-    sub.textContent='hembuskan pelan-pelan';
-    speak('Hembuskan',.7,1.1);
-    // create breath puffs
-    puffs.innerHTML='';
-    for(let i=0;i<3;i++){
-      const p=document.createElement('div');
-      p.className='breath-puff';
-      p.style.top=(4+i*3)+'px';
-      p.style.left=(6+i*4)+'px';
-      p.style.animationDelay=(i*.15)+'s';
-      puffs.appendChild(p);
-    }
-  }
+  // Reset to neutral
+  anime.remove(armL);anime.remove(armR);anime.remove(mouth);
+  puffs.innerHTML='';
+  circ.style.width='clamp(160px,40vw,320px)';circ.style.height='clamp(160px,40vw,320px)';circ.style.opacity='.6';
+  bodyEl.style.width='clamp(90px,22vw,160px)';bodyEl.style.height='clamp(80px,20vw,140px)';
+  armL.style.transform='rotate(12deg)';armR.style.transform='rotate(-12deg)';
+  mouth.style.borderRadius='0 0 50% 50%';mouth.style.width='clamp(18px,4.5vw,30px)';mouth.style.height='clamp(9px,2.2vw,15px)';mouth.style.background='#E88888';
 
-  doInhale();
+  // Phase 1: Inhale (CSS transitions handle width/height; Anime.js handles arms)
+  text.textContent='Tarik napas...';sub.textContent='hirup perlahan, ikuti gerakannya';
+  speak('Tarik napas',.7,1.1);
+  circ.style.width='clamp(260px,65vw,500px)';circ.style.height='clamp(260px,65vw,500px)';circ.style.opacity='.9';
+  bodyEl.style.width='clamp(120px,30vw,210px)';bodyEl.style.height='clamp(90px,22vw,155px)';
+  mouth.style.borderRadius='50%';mouth.style.width='clamp(14px,3.5vw,22px)';mouth.style.height='clamp(14px,3.5vw,22px)';mouth.style.background='#D47777';
+  anime({targets:armL,rotate:'-45deg',duration:3200,easing:'easeInOutQuad'});
+  anime({targets:armR,rotate:'45deg',duration:3200,easing:'easeInOutQuad'});
+
   setTimeout(()=>{
     if(breathingCancel)return;
-    doHold();
+    // Phase 2: Hold
+    text.textContent='Tahan...';sub.textContent='tahan sebentar';
     setTimeout(()=>{
       if(breathingCancel)return;
-      doExhale();
+      // Phase 3: Exhale
+      text.textContent='Hembuskan...';sub.textContent='hembuskan pelan-pelan';
+      speak('Hembuskan',.7,1.1);
+      circ.style.width='clamp(140px,35vw,280px)';circ.style.height='clamp(140px,35vw,280px)';circ.style.opacity='.4';
+      bodyEl.style.width='clamp(80px,20vw,145px)';bodyEl.style.height='clamp(75px,18vw,130px)';
+      mouth.style.borderRadius='50%';mouth.style.width='clamp(10px,2.5vw,16px)';mouth.style.height='clamp(8px,2vw,12px)';mouth.style.background='#E88888';
+      anime({targets:armL,rotate:'20deg',duration:3200,easing:'easeInOutQuad'});
+      anime({targets:armR,rotate:'-20deg',duration:3200,easing:'easeInOutQuad'});
+
+      // Breath puffs with Anime.js
+      for(let i=0;i<3;i++){
+        const p=document.createElement('div');
+        p.className='breath-puff';
+        p.style.top=(4+i*3)+'px';p.style.left=(6+i*4)+'px';
+        puffs.appendChild(p);
+        anime({targets:p,translateX:[0,anime.random(20,50)],translateY:[0,anime.random(-40,-20)],scale:[.5,1.5],opacity:[.6,0],duration:1800,delay:i*150,easing:'easeOutCubic'});
+      }
+
       setTimeout(()=>{
         if(breathingCancel)return;
         puffs.innerHTML='';
-        resetChar();
         runBreathingCycle(cycle+1);
       },3500);
     },1500);
@@ -654,6 +628,7 @@ function runIntro(lv, callback){
   overlay.classList.add('active');
   content.innerHTML = '';
   narration.textContent = '';
+  anime.set(content,{opacity:1});
 
   window._introSkip = false;
   window._introCb = callback;
@@ -661,30 +636,37 @@ function runIntro(lv, callback){
 
   let elemCache = [];
 
+  // Build all elements upfront
   seq.forEach((step, i) => {
     if(step.elem){
-      introTimer = setTimeout(() => {
-        if(window._introSkip) return;
-        const el = document.createElement('div');
-        el.className = 'intro-elem' + (step.elem.num ? ' rounded' : '');
-        el.style.backgroundColor = step.elem.color;
-        const val = step.elem.num || '';
-        const lbl = step.elem.label || '';
-        el.innerHTML = `<span>${val}</span>${lbl ? `<span class="ilabel">${lbl}</span>` : ''}`;
-        content.appendChild(el);
-        // trigger animation next frame
-        requestAnimationFrame(() => { el.classList.add('show'); });
-        
-        // remove duplicate of same type (keep only latest 4)
-        if(elemCache.length >= 4){
-          const old = elemCache.shift();
-          if(old && old.parentNode) old.parentNode.removeChild(old);
+      const el = document.createElement('div');
+      el.className = 'intro-elem' + (step.elem.num ? ' rounded' : '');
+      el.style.backgroundColor = step.elem.color;
+      const val = step.elem.num || '';
+      const lbl = step.elem.label || '';
+      el.innerHTML = `<span>${val}</span>${lbl ? `<span class="ilabel">${lbl}</span>` : ''}`;
+      el.style.opacity = '0';
+      content.appendChild(el);
+
+      anime({
+        targets: el,
+        opacity: [0, 1],
+        scale: [0, 1],
+        duration: 800,
+        delay: step.t,
+        easing: 'easeOutElastic(1, .5)',
+        begin: () => {
+          // remove duplicate of same type (keep only latest 4)
+          if(elemCache.length >= 4){
+            const old = elemCache.shift();
+            if(old && old.parentNode) anime({targets:old,opacity:0,scale:.5,duration:300,complete:()=>{if(old.parentNode)old.parentNode.removeChild(old)}});
+          }
+          elemCache.push(el);
         }
-        elemCache.push(el);
-      }, step.t);
+      });
     }
     if(step.say){
-      introTimer = setTimeout(() => {
+      setTimeout(() => {
         if(window._introSkip) return;
         narration.textContent = step.say;
         speakWarm(step.say);
@@ -773,7 +755,8 @@ function showTwoStepPart(q){
     const o=step.options.map(c=>({value:c.name,color:c.hex,id:c.id,label:''}));
     renderRawOptions(o,i=>{if(state.isProcessing)return;const c=step.options[i];if(c.id===step.target.id){
       state.isProcessing=true;
-      document.querySelectorAll('.option-btn')[i].classList.add('correct');
+      const el=document.querySelectorAll('.option-btn')[i];
+      anime({targets:el,scale:[1,1.12,1],duration:500,easing:'easeOutBack'});
       Sound.correct();mascotReaction('correct');
       setTimeout(()=>{state.subStep=1;showTwoStepPart(q)},1200);
     }else{wrongAnswer(i)}});
@@ -782,7 +765,8 @@ function showTwoStepPart(q){
     const o=step.options.map(n=>({value:n,color:'#8B5CF6',id:n,label:''}));
     renderRawOptions(o,i=>{if(state.isProcessing)return;const c=step.options[i];if(c===step.target){
       state.isProcessing=true;
-      document.querySelectorAll('.option-btn')[i].classList.add('correct');
+      const el=document.querySelectorAll('.option-btn')[i];
+      anime({targets:el,scale:[1,1.12,1],duration:500,easing:'easeOutBack'});
       Sound.correct();mascotReaction('correct');
       setTimeout(()=>{state.correctCount++;advanceRound()},1200);
     }else{wrongAnswer(i)}});
@@ -797,7 +781,8 @@ function renderOptions(q){
     return{value:o.number,color:o.color.hex,id:o.number+o.color.id,label:o.color.name};
   }),i=>{if(state.isProcessing)return;if(i===q.correctIdx){
     state.isProcessing=true;
-    const b=document.querySelectorAll('.option-btn');b[i].classList.add('correct');
+    const el=document.querySelectorAll('.option-btn')[i];
+    anime({targets:el,scale:[1,1.12,1],duration:500,easing:'easeOutBack'});
     Sound.correct();mascotReaction('correct');
     document.getElementById('instructionText').textContent='Hebat! 🎉';
     setTimeout(()=>{state.correctCount++;advanceRound()},1200);
@@ -817,10 +802,10 @@ function renderRawOptions(items,onClick){
 function wrongAnswer(idx){
   state.isProcessing=true;
   const b=document.querySelectorAll('.option-btn');
-  b[idx].classList.add('wrong');
+  const el=b[idx];
   Sound.wrong();mascotReaction('wrong');
   speak('Coba lagi!');
-  setTimeout(()=>{b[idx].classList.remove('wrong');state.isProcessing=false},600);
+  anime({targets:el,translateX:[0,-10,10,-8,8,-4,4,0],duration:500,easing:'easeOutCubic',complete:()=>{state.isProcessing=false}});
 }
 
 function advanceRound(){
@@ -865,8 +850,31 @@ function hideCelebration(){const e=document.getElementById('celebration');e.clas
 function celebrate(count=6){
   const e=document.getElementById('celebration');e.innerHTML='';e.classList.add('active');
   const c=['#EF4444','#F59E0B','#10B981','#3B82F6','#EC4899','#8B5CF6','#fff'];
-  for(let i=0;i<count;i++){const p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*100+'%';p.style.top='-10px';p.style.background=pickRandom(c);p.style.width=(5+Math.random()*7)+'px';p.style.height=(5+Math.random()*7)+'px';p.style.animationDuration=(1.5+Math.random()*2)+'s';p.style.animationDelay=(Math.random()*.5)+'s';p.style.borderRadius=Math.random()>.5?'50%':'2px';e.appendChild(p)}
-  setTimeout(()=>{e.classList.remove('active');e.innerHTML=''},3000);
+  const particles=[];
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.style.position='absolute';
+    p.style.left=Math.random()*100+'%';
+    p.style.top='50%';
+    p.style.background=pickRandom(c);
+    const size=5+Math.random()*7;
+    p.style.width=size+'px';p.style.height=size+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    p.style.pointerEvents='none';
+    e.appendChild(p);
+    particles.push(anime({
+      targets:p,
+      translateX:[0,anime.random(-200,200)],
+      translateY:[0,anime.random(-400,-100)],
+      rotate:anime.random(-720,720),
+      opacity:[1,0],
+      scale:[1,0.3],
+      duration:anime.random(1500,3000),
+      delay:Math.random()*300,
+      easing:'easeOutCubic'
+    }));
+  }
+  setTimeout(()=>{e.classList.remove('active');e.innerHTML=''},3500);
 }
 
 // ===== CALM CORNER =====
