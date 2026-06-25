@@ -20,7 +20,8 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 #calmBtn:active{background:rgba(255,255,255,.45)}
 
 /* MASCOT */
-.mascot-wrap{position:absolute;bottom:clamp(8px,2vw,16px);left:clamp(8px,2vw,16px);z-index:12;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.mascot-wrap{position:absolute;bottom:clamp(8px,2vw,16px);left:clamp(8px,2vw,16px);z-index:12;pointer-events:none;display:flex;flex-direction:column;align-items:center;transition:opacity .3s}
+.mascot-wrap.hide{opacity:0;pointer-events:none}
 .mascot{font-size:clamp(40px,10vw,60px);transition:transform .3s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
 .mascot.idle{animation:mascotIdle 3s ease-in-out infinite}
 .mascot.happy{animation:mascotHappy .6s ease}
@@ -376,6 +377,7 @@ function renderStickers(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.querySelector('.mascot-wrap').classList.toggle('hide', id==='game');
 }
 
 // ===== HOME =====
