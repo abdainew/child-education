@@ -65,6 +65,15 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .option-btn .option-value{font-size:clamp(32px,8vw,56px);line-height:1}
 .option-btn .option-label{font-size:clamp(11px,2.5vw,16px);font-weight:600;margin-top:3px;opacity:.9}
 
+/* TRACE CANVAS */
+#traceArea{display:none;flex-direction:column;align-items:center;width:100%;flex:1;min-height:0}
+#traceArea.active{display:flex}
+#traceCanvas{display:block;width:100%;flex:1;min-height:0;border-radius:clamp(16px,4vw,28px);background:rgba(255,255,255,.12);touch-action:none;cursor:crosshair}
+.trace-progress{display:flex;gap:clamp(6px,1.5vw,10px);margin:clamp(6px,1.5vw,12px) 0 clamp(4px,1vw,8px)}
+.trace-dot{width:clamp(10px,2.5vw,16px);height:clamp(10px,2.5vw,16px);border-radius:50%;background:rgba(255,255,255,.25);transition:all .3s}
+.trace-dot.done{background:#FCD34D;box-shadow:0 0 12px rgba(252,211,77,.6);transform:scale(1.2)}
+#tracePrompt{font-size:clamp(16px,4vw,28px);font-weight:700;color:#fff;text-align:center;text-shadow:0 3px 10px rgba(0,0,0,.15);margin-bottom:clamp(4px,1vw,8px)}
+
 /* CELEBRATION OVERLAY */
 #celebration{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:15;display:none}
 #celebration.active{display:block}
@@ -259,6 +268,11 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
       <button class="btn-replay" onclick="replayInstruction()" id="replayBtn">🔊</button>
     </div>
     <div class="options-grid" id="optionsGrid"></div>
+    <div id="traceArea">
+      <div id="tracePrompt">Tracing angka 1</div>
+      <canvas id="traceCanvas"></canvas>
+      <div class="trace-progress" id="traceProgress"></div>
+    </div>
   </div>
 
   <!-- COMPLETE -->
@@ -286,6 +300,7 @@ const LEVELS = [
   { id:1, name:'Kenal Angka', icon:'1️⃣', sticker:'🎈', desc:'Cari angka yang disebut' },
   { id:2, name:'Warna + Angka', icon:'🎨', sticker:'🚀', desc:'Cari angka dengan warna tertentu' },
   { id:3, name:'Dua Langkah', icon:'🦶', sticker:'👑', desc:'Ikuti dua instruksi berurutan' },
+  { id:4, name:'Tracing Angka', icon:'✏️', sticker:'🖍️', desc:'Tracing angka dengan jari' },
 ];
 
 const NUMBERS = [1,2,3,4,5];
@@ -305,8 +320,8 @@ let lastPujian = -1;
 let state = {
   currentLevel: 0, currentRound: 0, correctCount: 0,
   subStep: 0, questionData: null, isProcessing: false,
-  levelStars: [0,0,0,0],
-  stickers: [false,false,false,false],
+  levelStars: [0,0,0,0,0],
+  stickers: [false,false,false,false,false],
 };
 
 // ===== SOUND ENGINE =====
@@ -614,6 +629,16 @@ const INTRO_SEQS = [
     {t:5500, elem:{num:'➡️', color:'#8B5CF6', label:'Langkah 2: Pilih Angka'}, say:"Kedua... lalu pilih angkanya"},
     {t:9500, say:"Ikuti dua instruksi berurutan ya... ayo main!"},
   ],
+  // Level 4: Tracing Angka
+  [
+    {t:0, say:"Adek... sekarang kita belajar menulis angka..."},
+    {t:2200, elem:{num:'1', color:'#8B5CF6', label:''}, say:"Ini angka satu... coba tracing dengan jari"},
+    {t:4400, elem:{num:'2', color:'#EC4899', label:''}, say:"Ini angka dua... ikuti garisnya"},
+    {t:6600, elem:{num:'3', color:'#F59E0B', label:''}, say:"Angka tiga"},
+    {t:8800, elem:{num:'4', color:'#3B82F6', label:''}, say:"Dan angka empat... dan lima"},
+    {t:9900, elem:{num:'5', color:'#10B981', label:''}, say:""},
+    {t:11000, say:"Gunakan jari Adek untuk menulis angka... ayo coba!"},
+  ],
 ];
 
 let introTimer = null;
@@ -728,8 +753,333 @@ function getLevelQuestions(lv){
     else if(lv===1)qs.push(genNumberRound());
     else if(lv===2)qs.push(genColorNumberRound());
     else if(lv===3)qs.push(genTwoStepRound());
+    else if(lv===4){const n=NUMBERS[r];qs.push({number:n,instruction:`Tracing angka ${n}!`})}
   }
   return qs;
+}
+
+// ===== TRACING =====
+const TRACE_COLORS = ['#FCD34D','#A78BFA','#F472B6','#34D399','#60A5FA'];
+let _trace = { num:0, path:[], checkpoints:[], checkpointRadius:20, hitCount:0, threshold:.45, points:[], demoDone:false, isDone:false, timeout:null, interval:null };
+
+function makeNumberPath(n){
+  // Return normalized (0-1) point arrays for numbers 1-5
+  const pts = {
+    1: [{x:.5,y:.08},{x:.5,y:.15},{x:.49,y:.22},{x:.48,y:.3},{x:.47,y:.4},{x:.46,y:.5},{x:.45,y:.6},{x:.44,y:.7},{x:.43,y:.78},{x:.42,y:.84},{x:.4,y:.88},{x:.36,y:.89},{x:.3,y:.89}],
+    2: [{x:.3,y:.12},{x:.35,y:.08},{x:.45,y:.08},{x:.55,y:.1},{x:.62,y:.15},{x:.65,y:.22},{x:.6,y:.32},{x:.52,y:.42},{x:.42,y:.52},{x:.35,y:.6},{x:.32,y:.68},{x:.33,y:.75},{x:.38,y:.8},{x:.45,y:.83},{x:.52,y:.85},{x:.6,y:.86},{x:.68,y:.88},{x:.72,y:.9}],
+    3: [{x:.32,y:.08},{x:.38,y:.05},{x:.48,y:.05},{x:.58,y:.08},{x:.62,y:.15},{x:.6,y:.22},{x:.55,y:.28},{x:.48,y:.32},{x:.42,y:.35},{x:.4,y:.4},{x:.4,y:.48},{x:.42,y:.55},{x:.48,y:.6},{x:.55,y:.65},{x:.6,y:.72},{x:.62,y:.8},{x:.58,y:.87},{x:.5,y:.9},{x:.4,y:.9},{x:.34,y:.87}],
+     4: [{x:.35,y:.88},{x:.35,y:.80},{x:.35,y:.72},{x:.35,y:.64},{x:.35,y:.56},{x:.35,y:.48},{x:.35,y:.40},{x:.38,y:.35},{x:.42,y:.28},{x:.46,y:.18},{x:.50,y:.08},{x:.54,y:.18},{x:.58,y:.28},{x:.62,y:.35},{x:.65,y:.40},{x:.65,y:.48},{x:.65,y:.56},{x:.65,y:.64},{x:.65,y:.72},{x:.65,y:.80},{x:.65,y:.88}],
+     5: [{x:.30,y:.08},{x:.38,y:.06},{x:.46,y:.05},{x:.54,y:.05},{x:.62,y:.06},{x:.70,y:.08},{x:.72,y:.12},{x:.70,y:.18},{x:.66,y:.24},{x:.60,y:.30},{x:.52,y:.34},{x:.44,y:.36},{x:.38,y:.38},{x:.34,y:.44},{x:.32,y:.52},{x:.34,y:.60},{x:.38,y:.68},{x:.44,y:.75},{x:.52,y:.80},{x:.60,y:.83},{x:.68,y:.85}],
+  };
+  return pts[n] || pts[1];
+}
+
+function initTraceCanvas(canvas){
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx,w:rect.width,h:rect.height};
+}
+
+function drawGhostNumber(ctx,w,h,path,color){
+  if(!path||path.length<2)return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(path[0].x*w,path[0].y*h);
+  for(let i=1;i<path.length;i++)ctx.lineTo(path[i].x*w,path[i].y*h);
+  ctx.strokeStyle=color||'rgba(255,255,255,.3)';
+  ctx.lineWidth=Math.max(6,Math.min(14,w/25));
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTraceStrokes(ctx,w,h,points,color){
+  if(!points||points.length<2)return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(points[0].x,points[0].y);
+  for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);
+  ctx.strokeStyle=color;
+  ctx.lineWidth=Math.max(8,Math.min(18,w/18));
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.shadowColor=color;
+  ctx.shadowBlur=12;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawCheckpoints(ctx,w,h,checkpoints,hitCount,radius){
+  checkpoints.forEach((cp,i)=>{
+    ctx.save();
+    const cx=cp.x*w,cy=cp.y*h;
+    if(i<hitCount){
+      ctx.fillStyle='rgba(252,211,77,.55)';
+      ctx.shadowColor='rgba(252,211,77,.4)';
+      ctx.shadowBlur=5;
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*.7,0,Math.PI*2);
+      ctx.fill();
+    }else if(i===hitCount){
+      const pulse=1+Math.sin(Date.now()/400)*.15;
+      ctx.fillStyle='rgba(255,255,255,.4)';
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*.8*pulse,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.7)';
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*.3,0,Math.PI*2);
+      ctx.fill();
+    }else{
+      ctx.fillStyle='rgba(255,255,255,.15)';
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius*.4,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+}
+
+function renderTraceProgress(hitCount,total){
+  const container=document.getElementById('traceProgress');
+  container.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='trace-dot'+(i<hitCount?' done':'');
+    container.appendChild(d);
+  }
+}
+
+function checkTraceHit(x,y,checkpoints,hitCount,radius){
+  for(let i=hitCount;i<checkpoints.length;i++){
+    const cp=checkpoints[i];
+    const dx=x-cp.x,dy=y-cp.y;
+    if(dx*dx+dy*dy<=radius*radius){
+      Sound._play(600+i*40,.08);
+      return i+1;
+    }
+  }
+  return hitCount;
+}
+
+function animateTraceDemo(canvas,ctx,w,h,path,callback){
+  if(!path||path.length<2){ if(callback)callback(); return; }
+  const totalFrames=60;
+  let frame=0;
+  const color=TRACE_COLORS[_trace.num%TRACE_COLORS.length];
+  
+  // Show ghost number
+  ctx.clearRect(0,0,w,h);
+  drawGhostNumber(ctx,w,h,path,'rgba(255,255,255,.2)');
+
+  function drawFrame(){
+    frame++;
+    const t=frame/totalFrames;
+    const idx=Math.round(t*(path.length-1));
+    const partialPath=path.slice(0,idx+1);
+    
+    ctx.clearRect(0,0,w,h);
+    drawGhostNumber(ctx,w,h,path,'rgba(255,255,255,.2)');
+
+    // Draw the "guide" line that's been traced so far
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(partialPath[0].x*w,partialPath[0].y*h);
+    for(let i=1;i<partialPath.length;i++)ctx.lineTo(partialPath[i].x*w,partialPath[i].y*h);
+    ctx.strokeStyle=color;
+    ctx.lineWidth=Math.max(6,Math.min(14,w/25));
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=color;
+    ctx.shadowColor=color;
+    ctx.shadowBlur=10;
+    ctx.stroke();
+    ctx.restore();
+
+    // Moving dot at the current position
+    if(idx<path.length-1){
+      const px=path[idx].x*w,py=path[idx].y*h;
+      ctx.save();
+      ctx.fillStyle='#fff';
+      ctx.shadowColor='#fff';
+      ctx.shadowBlur=20;
+      ctx.beginPath();
+      ctx.arc(px,py,Math.max(8,w/40),0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    if(frame<totalFrames){
+      requestAnimationFrame(drawFrame);
+    }else{
+      // brief pause then callback
+      setTimeout(()=>{ if(callback)callback(); },500);
+    }
+  }
+  drawFrame();
+}
+
+function showTraceQuestion(q){
+  if(_trace.interval)clearInterval(_trace.interval);
+  document.querySelector('.instruction-area').style.display='none';
+  document.getElementById('game').style.padding='clamp(4px,1vw,8px)';
+  _trace.num=q.number;
+  _trace.path=makeNumberPath(q.number);
+  _trace.hitCount=0;
+  _trace.points=[];
+  _trace.demoDone=false;
+  _trace.isDone=false;
+  _trace.checkpointRadius=Math.max(12,Math.min(24,window.innerWidth/40));
+  
+  // Generate checkpoints along path
+  const totalCP=Math.min(10,Math.max(6,Math.floor(_trace.path.length*.7)));
+  const step=(_trace.path.length-1)/(totalCP-1);
+  _trace.checkpoints=[];
+  for(let i=0;i<totalCP;i++){
+    const idx=Math.round(i*step);
+    _trace.checkpoints.push(_trace.path[idx]);
+  }
+  _trace.threshold=totalCP;
+  
+  document.getElementById('instructionText').textContent=q.instruction;
+  document.getElementById('optionsGrid').style.display='none';
+  const traceArea=document.getElementById('traceArea');
+  traceArea.classList.add('active');
+  document.getElementById('tracePrompt').textContent=`Ikuti garis angka ${q.number}!`;
+  renderTraceProgress(0,totalCP);
+  
+  const canvas=document.getElementById('traceCanvas');
+  const {ctx,w,h}=initTraceCanvas(canvas);
+
+  // Draw initial ghost
+  ctx.clearRect(0,0,w,h);
+  drawGhostNumber(ctx,w,h,_trace.path,'rgba(255,255,255,.25)');
+  drawCheckpoints(ctx,w,h,_trace.checkpoints,0,_trace.checkpointRadius);
+
+  // Animate demo after a short delay
+  setTimeout(()=>{
+    animateTraceDemo(canvas,ctx,w,h,_trace.path,()=>{
+      _trace.demoDone=true;
+      // Clear and show interactive state
+      ctx.clearRect(0,0,w,h);
+      drawGhostNumber(ctx,w,h,_trace.path,'rgba(255,255,255,.2)');
+      drawCheckpoints(ctx,w,h,_trace.checkpoints,0,_trace.checkpointRadius);
+      speak(`Sekarang giliran Adek... tracing angka ${q.number}`);
+      document.getElementById('tracePrompt').textContent=`Sekarang tracing angka ${q.number}!`;
+    });
+  },600);
+
+  // Set up event handlers
+  let isDrawing=false;
+  const color=TRACE_COLORS[_trace.num%TRACE_COLORS.length];
+  _trace.interval=setInterval(()=>{
+    if(!_trace.demoDone||_trace.isDone)return;
+    ctx.clearRect(0,0,w,h);
+    drawGhostNumber(ctx,w,h,_trace.path,'rgba(255,255,255,.2)');
+    drawTraceStrokes(ctx,w,h,_trace.points,color);
+    drawCheckpoints(ctx,w,h,_trace.checkpoints,_trace.hitCount,_trace.checkpointRadius);
+  },200);
+
+  function getPos(e){
+    const rect=canvas.getBoundingClientRect();
+    const t=e.touches?e.touches[0]:e;
+    return {x:t.clientX-rect.left,y:t.clientY-rect.top};
+  }
+
+  function onStart(e){
+    e.preventDefault();
+    if(!_trace.demoDone||_trace.isDone)return;
+    isDrawing=true;
+    const pos=getPos(e);
+    _trace.points.push(pos);
+    checkHit(pos);
+  }
+
+  function onMove(e){
+    e.preventDefault();
+    if(!isDrawing||!_trace.demoDone||_trace.isDone)return;
+    const pos=getPos(e);
+    _trace.points.push(pos);
+    checkHit(pos);
+    // Draw on each move for smooth feedback
+    ctx.clearRect(0,0,w,h);
+    drawGhostNumber(ctx,w,h,_trace.path,'rgba(255,255,255,.2)');
+    drawTraceStrokes(ctx,w,h,_trace.points,color);
+    drawCheckpoints(ctx,w,h,_trace.checkpoints,_trace.hitCount,_trace.checkpointRadius);
+  }
+
+  function onEnd(e){
+    e.preventDefault();
+    isDrawing=false;
+  }
+
+  function checkHit(pos){
+    const w2=canvas.getBoundingClientRect().width;
+    const h2=canvas.getBoundingClientRect().height;
+    const normX=pos.x/w2,normY=pos.y/h2;
+    const newCount=checkTraceHit(normX,normY,_trace.checkpoints,_trace.hitCount,_trace.checkpointRadius/w2);
+    if(newCount>_trace.hitCount){
+      _trace.hitCount=newCount;
+      renderTraceProgress(newCount,_trace.checkpoints.length);
+      if(newCount>=_trace.threshold&&!_trace.isDone){
+        completeTraceRound(canvas,ctx);
+      }
+    }
+  }
+
+  canvas._traceHandlers={onStart,onMove,onEnd};
+  canvas.addEventListener('touchstart',onStart,{passive:false});
+  canvas.addEventListener('touchmove',onMove,{passive:false});
+  canvas.addEventListener('touchend',onEnd);
+  canvas.addEventListener('mousedown',onStart);
+  canvas.addEventListener('mousemove',onMove);
+  canvas.addEventListener('mouseup',onEnd);
+  canvas.addEventListener('mouseleave',onEnd);
+}
+
+function completeTraceRound(canvas,ctx){
+  _trace.isDone=true;
+  if(_trace.interval)clearInterval(_trace.interval);
+  _trace.interval=null;
+  // Clean up events
+  const h=canvas._traceHandlers;
+  if(h){
+    canvas.removeEventListener('touchstart',h.onStart);
+    canvas.removeEventListener('touchmove',h.onMove);
+    canvas.removeEventListener('touchend',h.onEnd);
+    canvas.removeEventListener('mousedown',h.onStart);
+    canvas.removeEventListener('mousemove',h.onMove);
+    canvas.removeEventListener('mouseup',h.onEnd);
+    canvas.removeEventListener('mouseleave',h.onEnd);
+    delete canvas._traceHandlers;
+  }
+
+  // Celebration on canvas
+  const w=canvas.getBoundingClientRect().width;
+  const h2=canvas.getBoundingClientRect().height;
+  ctx.clearRect(0,0,w,h2);
+  drawGhostNumber(ctx,w,h2,_trace.path,'rgba(255,255,255,.15)');
+  drawTraceStrokes(ctx,w,h2,_trace.points,TRACE_COLORS[_trace.num%TRACE_COLORS.length]);
+
+  // Show all checkpoints as done
+  _trace.hitCount=_trace.checkpoints.length;
+  renderTraceProgress(_trace.hitCount,_trace.checkpoints.length);
+  ctx.clearRect(0,0,w,h2);
+  drawGhostNumber(ctx,w,h2,_trace.path,'rgba(255,255,255,.15)');
+  drawTraceStrokes(ctx,w,h2,_trace.points,TRACE_COLORS[_trace.num%TRACE_COLORS.length]);
+  drawCheckpoints(ctx,w,h2,_trace.checkpoints,_trace.hitCount,_trace.checkpointRadius);
+
+  document.getElementById('tracePrompt').textContent='Hebat! 🎉';
+  Sound.correct();
+  mascotReaction('correct');
+  state.correctCount++;
+
+  setTimeout(()=>{
+    state.isProcessing=false;
+    advanceRound();
+  },1400);
 }
 
 // ===== GAME ENGINE =====
@@ -745,7 +1095,12 @@ function renderHeader(){
 function showQuestion(){
   const q=questions[state.currentRound];
   state.isProcessing=false;
+  document.querySelector('.instruction-area').style.display='';
+  document.getElementById('game').style.padding='';
+  document.getElementById('optionsGrid').style.display='';
+  document.getElementById('traceArea').classList.remove('active');
   if(state.currentLevel===3){state.subStep=0;showTwoStepPart(q)}
+  else if(state.currentLevel===4){showTraceQuestion(q)}
   else{state.questionData=q;renderOptions(q);document.getElementById('instructionText').textContent=q.instruction;speak(q.instruction)}
 }
 
@@ -817,6 +1172,7 @@ function advanceRound(){
 function replayInstruction(){
   if('speechSynthesis' in window)window.speechSynthesis.cancel();
   if(state.currentLevel===3){const q=questions[state.currentRound];if(q){const s=q.steps[state.subStep];if(s)speak(s.instruction)}}
+  else if(state.currentLevel===4){const q=questions[state.currentRound];if(q)speak(q.instruction)}
   else if(state.questionData)speak(state.questionData.instruction);
 }
 
@@ -835,7 +1191,7 @@ function showComplete(){
   document.getElementById('scoreDetail').textContent=`${correct} dari ${TOTAL_ROUNDS} benar`;
 
   const btns=document.getElementById('completeBtns');btns.innerHTML='';
-  if(state.currentLevel<3){const n=document.createElement('button');n.className='btn-primary';n.textContent=`Level ${state.currentLevel+2} →`;n.onclick=()=>startBreathing(state.currentLevel+1);btns.appendChild(n)}
+  if(state.currentLevel<4){const n=document.createElement('button');n.className='btn-primary';n.textContent=`Level ${state.currentLevel+2} →`;n.onclick=()=>startBreathing(state.currentLevel+1);btns.appendChild(n)}
   const retry=document.createElement('button');retry.className='btn-secondary';retry.textContent='🔄 Ulang Level';retry.onclick=()=>startBreathing(state.currentLevel);btns.appendChild(retry);
   const home=document.createElement('button');home.className='btn-secondary';home.textContent='🏠 Home';home.onclick=showHome;btns.appendChild(home);
 
