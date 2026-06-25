@@ -107,6 +107,23 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
 .btn-skip{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);border-radius:30px;color:#fff;font-size:clamp(14px,3.5vw,20px);font-weight:600;padding:clamp(8px,2vw,14px) clamp(20px,5vw,36px);cursor:pointer;margin-top:clamp(24px,6vw,40px);transition:background .2s}
 .btn-skip:active{background:rgba(255,255,255,.4);transform:scale(.95)}
 
+/* INTRO OVERLAY */
+#introOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:24;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#a78bfa,#818cf8,#f9a8d4);padding:20px}
+#introOverlay.active{display:flex}
+.intro-content{display:flex;gap:clamp(12px,3vw,24px);flex-wrap:wrap;justify-content:center;align-items:center;min-height:clamp(120px,30vw,200px);width:100%}
+.intro-elem{border-radius:50%;width:clamp(70px,18vw,120px);height:clamp(70px,18vw,120px);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(28px,7vw,48px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);opacity:0;transform:scale(0);transition:opacity .4s,transform .4s}
+.intro-elem.show{opacity:1;transform:scale(1)}
+.intro-elem.rounded{border-radius:16px}
+.intro-elem .ilabel{font-size:clamp(10px,2.5vw,16px);font-weight:600;margin-top:2px;opacity:.9}
+.intro-narration{font-size:clamp(18px,4.5vw,30px);font-weight:700;color:#fff;text-align:center;margin-top:clamp(16px,4vw,28px);text-shadow:0 3px 12px rgba(0,0,0,.15);min-height:clamp(48px,10vw,72px);line-height:1.4;max-width:90%}
+.intro-btn-skip{position:absolute;bottom:clamp(16px,4vw,32px);right:clamp(16px,4vw,32px);background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);border-radius:30px;color:#fff;font-size:clamp(14px,3.5vw,20px);font-weight:600;padding:clamp(8px,2vw,14px) clamp(20px,5vw,36px);cursor:pointer;transition:background .2s;z-index:26}
+.intro-btn-skip:active{background:rgba(255,255,255,.4);transform:scale(.95)}
+
+@media(max-width:480px){
+  .intro-content{gap:8px}
+  .intro-elem{width:clamp(55px,15vw,90px);height:clamp(55px,15vw,90px);font-size:clamp(22px,6vw,36px)}
+}
+
 /* CALM CORNER */
 #calmCorner{position:absolute;top:0;left:0;width:100%;height:100%;z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#dbeafe,#ede9fe,#fce7f3);padding:30px}
 #calmCorner.active{display:flex}
@@ -160,6 +177,13 @@ body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-con
     <div class="breathing-text" id="breathText">Tarik napas...</div>
     <div class="breathing-sub" id="breathSub">ikuti gerakan lingkarannya</div>
     <button class="btn-skip" onclick="skipBreathing()">⏭️ Langsung main</button>
+  </div>
+
+  <!-- INTRO OVERLAY -->
+  <div id="introOverlay">
+    <div class="intro-content" id="introContent"></div>
+    <div class="intro-narration" id="introNarration"></div>
+    <button class="intro-btn-skip" onclick="skipIntro()">⏭️ Lewati</button>
   </div>
 
   <!-- CALM CORNER -->
@@ -317,11 +341,18 @@ const Sound = {
 };
 
 // ===== SPEECH =====
-function speak(text,rate=.85,pitch=1.15){
+function speak(text,rate=.75,pitch=1.2){
   if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   u.lang='id-ID';u.rate=rate;u.pitch=pitch;u.volume=1;
+  window.speechSynthesis.speak(u);
+}
+function speakWarm(text){
+  if(!('speechSynthesis' in window))return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='id-ID';u.rate=0.62;u.pitch=1.35;u.volume=1;
   window.speechSynthesis.speak(u);
 }
 
@@ -453,11 +484,128 @@ function runBreathingCycle(cycle){
 }
 
 function beginLevel(){
-  mascotReaction('start');
   state.currentRound=0;state.correctCount=0;state.subStep=0;state.isProcessing=false;
   questions=getLevelQuestions(state.currentLevel);
   renderHeader();
-  setTimeout(showQuestion,500);
+  runIntro(state.currentLevel, startGame);
+}
+function startGame(){
+  mascotReaction('start');
+  setTimeout(showQuestion,400);
+}
+
+// ===== INTRO ANIMATION =====
+const INTRO_SEQS = [
+  // Level 0: Kenal Warna
+  [
+    {t:0, say:"Adek... yuk kita belajar warna-warna..."},
+    {t:2000, elem:{color:'#EF4444', label:'Merah'}, say:"Ini warna merah"},
+    {t:4000, elem:{color:'#3B82F6', label:'Biru'}, say:"Ini warna biru"},
+    {t:6000, elem:{color:'#F59E0B', label:'Kuning'}, say:"Ini warna kuning"},
+    {t:8000, elem:{color:'#10B981', label:'Hijau'}, say:"Dan ini warna hijau"},
+    {t:9500, say:"Ayo cari warna yang disebut... Adek pasti bisa!"},
+  ],
+  // Level 1: Kenal Angka
+  [
+    {t:0, say:"Adek... sekarang kita belajar angka yuk..."},
+    {t:2000, elem:{num:'1', color:'#8B5CF6', label:''}, say:"Ini angka satu"},
+    {t:4000, elem:{num:'2', color:'#EC4899', label:''}, say:"Ini angka dua"},
+    {t:6000, elem:{num:'3', color:'#F59E0B', label:''}, say:"Ini angka tiga"},
+    {t:8000, elem:{num:'4', color:'#3B82F6', label:''}, say:"Ini angka empat... dan lima!"},
+    {t:9000, elem:{num:'5', color:'#10B981', label:''}, say:""},
+    {t:10000, say:"Ayo cari angkanya... Adek hebat!"},
+  ],
+  // Level 2: Warna + Angka
+  [
+    {t:0, say:"Adek... warna dan angka digabung yuk..."},
+    {t:2000, elem:{num:'1', color:'#EF4444', label:'Merah'}, say:"Angka satu warna merah"},
+    {t:4000, elem:{num:'2', color:'#3B82F6', label:'Biru'}, say:"Angka dua warna biru"},
+    {t:6000, elem:{num:'3', color:'#F59E0B', label:'Kuning'}, say:"Angka tiga warna kuning"},
+    {t:8000, elem:{num:'4', color:'#10B981', label:'Hijau'}, say:"Angka empat warna hijau"},
+    {t:9500, say:"Ayo cari angka dengan warna yang tepat... Adek pasti bisa!"},
+  ],
+  // Level 3: Dua Langkah
+  [
+    {t:0, say:"Adek... sekarang kita belajar dua langkah..."},
+    {t:2000, elem:{color:'#EF4444', label:'Langkah 1: Pilih Warna'}, say:"Pertama... pilih warna yang disebut"},
+    {t:5500, elem:{num:'➡️', color:'#8B5CF6', label:'Langkah 2: Pilih Angka'}, say:"Kedua... lalu pilih angkanya"},
+    {t:8500, say:"Ikuti dua instruksi berurutan ya... ayo main!"},
+  ],
+];
+
+let introTimer = null;
+
+function runIntro(lv, callback){
+  const seq = INTRO_SEQS[lv];
+  if(!seq){ callback(); return; }
+
+  const overlay = document.getElementById('introOverlay');
+  const content = document.getElementById('introContent');
+  const narration = document.getElementById('introNarration');
+  overlay.classList.add('active');
+  content.innerHTML = '';
+  narration.textContent = '';
+
+  window._introSkip = false;
+  window._introCb = callback;
+  overlay.onclick = (e) => { if(e.target===overlay||e.target===content) skipIntro(); };
+
+  let elemCache = [];
+
+  seq.forEach((step, i) => {
+    if(step.elem){
+      introTimer = setTimeout(() => {
+        if(window._introSkip) return;
+        const el = document.createElement('div');
+        el.className = 'intro-elem' + (step.elem.num ? ' rounded' : '');
+        el.style.backgroundColor = step.elem.color;
+        const val = step.elem.num || '';
+        const lbl = step.elem.label || '';
+        el.innerHTML = `<span>${val}</span>${lbl ? `<span class="ilabel">${lbl}</span>` : ''}`;
+        content.appendChild(el);
+        // trigger animation next frame
+        requestAnimationFrame(() => { el.classList.add('show'); });
+        
+        // remove duplicate of same type (keep only latest 4)
+        if(elemCache.length >= 4){
+          const old = elemCache.shift();
+          if(old && old.parentNode) old.parentNode.removeChild(old);
+        }
+        elemCache.push(el);
+      }, step.t);
+    }
+    if(step.say){
+      introTimer = setTimeout(() => {
+        if(window._introSkip) return;
+        narration.textContent = step.say;
+        speakWarm(step.say);
+      }, step.t);
+    }
+  });
+
+  // auto-end
+  introTimer = setTimeout(() => {
+    if(!window._introSkip) finishIntro();
+  }, 11500);
+}
+
+function skipIntro(){
+  if(window._introSkip) return;
+  window._introSkip = true;
+  if(introTimer) clearTimeout(introTimer);
+  if('speechSynthesis' in window) window.speechSynthesis.cancel();
+  finishIntro();
+}
+
+function finishIntro(){
+  const overlay = document.getElementById('introOverlay');
+  overlay.classList.remove('active');
+  overlay.onclick = null;
+  document.getElementById('introContent').innerHTML = '';
+  document.getElementById('introNarration').textContent = '';
+  const cb = window._introCb;
+  window._introCb = null;
+  if(cb) cb();
 }
 
 // ===== LEVEL GENERATORS =====
