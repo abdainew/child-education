@@ -7,88 +7,136 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;touch-action:manipulation}
-body{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;justify-content:center;align-items:center;user-select:none;-webkit-user-select:none}
+body{background:linear-gradient(135deg,#a78bfa,#f9a8d4);display:flex;justify-content:center;align-items:center;user-select:none;-webkit-user-select:none}
 
 #app{width:100%;height:100dvh;max-width:800px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;position:absolute;top:0;left:0}
-.screen.active{display:flex}
+
+/* SCREENS + TRANSITIONS */
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;position:absolute;top:0;left:0;opacity:0;transition:opacity .35s ease,transform .35s ease;transform:scale(.97)}
+.screen.active{display:flex;opacity:1;transform:scale(1)}
+
+/* CALM BUTTON (always visible top-right) */
+#calmBtn{position:absolute;top:clamp(8px,2vw,14px);right:clamp(8px,2vw,14px);z-index:20;width:clamp(40px,8vw,52px);height:clamp(40px,8vw,52px);border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.35);font-size:clamp(20px,4.5vw,28px);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#calmBtn:active{background:rgba(255,255,255,.45)}
+
+/* MASCOT */
+.mascot-wrap{position:absolute;bottom:clamp(8px,2vw,16px);left:clamp(8px,2vw,16px);z-index:12;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.mascot{font-size:clamp(40px,10vw,60px);transition:transform .3s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
+.mascot.idle{animation:mascotIdle 3s ease-in-out infinite}
+.mascot.happy{animation:mascotHappy .6s ease}
+.mascot.celebrate{animation:mascotCelebrate .8s ease}
+.mascot.encourage{animation:mascotEncourage .5s ease}
+.mascot-say{background:rgba(255,255,255,.85);border-radius:12px;padding:4px 10px;font-size:clamp(12px,2.5vw,16px);color:#6d28d9;font-weight:600;margin-top:2px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .3s}
+.mascot-say.show{opacity:1}
+@keyframes mascotIdle{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-3px) rotate(-3deg)}75%{transform:translateY(-3px) rotate(3deg)}}
+@keyframes mascotHappy{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-12px) scale(1.15)}}
+@keyframes mascotCelebrate{0%,25%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(-8deg)}75%{transform:translateY(-16px) rotate(8deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes mascotEncourage{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px) rotate(-5deg)}75%{transform:translateX(6px) rotate(5deg)}}
 
 /* HOME */
-#home{background:linear-gradient(135deg,#667eea,#764ba2)}
-#home .logo{font-size:clamp(60px,15vw,100px);margin-bottom:10px;animation:bounce 2s infinite}
-#home h1{font-size:clamp(24px,6vw,42px);color:#fff;text-align:center;font-weight:800;text-shadow:0 4px 15px rgba(0,0,0,.25);line-height:1.2;margin-bottom:8px}
-#home .sub{font-size:clamp(14px,3.5vw,20px);color:rgba(255,255,255,.85);margin-bottom:30px;text-align:center}
-#home .btn-start{background:linear-gradient(135deg,#F59E0B,#EF4444);border:none;color:#fff;font-size:clamp(28px,7vw,48px);font-weight:800;padding:clamp(16px,4vw,28px) clamp(40px,10vw,80px);border-radius:60px;cursor:pointer;box-shadow:0 8px 30px rgba(239,68,68,.5);transition:transform .2s;letter-spacing:2px}
+#home{background:linear-gradient(135deg,#a78bfa,#f9a8d4)}
+#home .logo{font-size:clamp(50px,13vw,80px);margin-bottom:6px;animation:bounce 2s infinite}
+#home h1{font-size:clamp(22px,5.5vw,38px);color:#fff;text-align:center;font-weight:800;text-shadow:0 4px 15px rgba(0,0,0,.2);line-height:1.2;margin-bottom:4px}
+#home .sub{font-size:clamp(13px,3vw,18px);color:rgba(255,255,255,.85);margin-bottom:clamp(12px,3vw,24px);text-align:center}
+#home .btn-start{background:linear-gradient(135deg,#F59E0B,#EF4444);border:none;color:#fff;font-size:clamp(26px,6.5vw,44px);font-weight:800;padding:clamp(14px,3.5vw,24px) clamp(36px,9vw,72px);border-radius:60px;cursor:pointer;box-shadow:0 8px 30px rgba(239,68,68,.4);transition:transform .2s;letter-spacing:2px}
 #home .btn-start:active{transform:scale(.95)}
-#home .stars-row{font-size:clamp(16px,4vw,28px);margin-top:20px;color:rgba(255,255,255,.7);letter-spacing:4px}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+.sticker-grid{display:flex;gap:clamp(8px,2vw,16px);margin-top:clamp(12px,3vw,24px)}
+.sticker{width:clamp(36px,8vw,52px);height:clamp(36px,8vw,52px);border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:clamp(20px,5vw,30px);border:2px solid rgba(255,255,255,.25);transition:all .3s}
+.sticker.locked{opacity:.35;filter:grayscale(1);border-color:rgba(255,255,255,.1)}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
 /* LEVEL SELECT */
-#levelSelect{background:linear-gradient(135deg,#667eea,#764ba2)}
-#levelSelect h2{font-size:clamp(20px,5vw,36px);color:#fff;font-weight:800;margin-bottom:clamp(12px,3vw,24px);text-shadow:0 3px 10px rgba(0,0,0,.2)}
-.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,20px);width:100%;max-width:500px}
-.level-card{background:#fff;border-radius:24px;padding:clamp(16px,4vw,28px);cursor:pointer;box-shadow:0 6px 25px rgba(0,0,0,.15);transition:transform .2s,opacity .3s;text-align:center;border:4px solid transparent}
-.level-card:active{transform:scale(.95)}
-.level-card .icon{font-size:clamp(36px,9vw,56px)}
-.level-card .name{font-size:clamp(13px,3.2vw,20px);font-weight:700;color:#333;margin-top:6px}
-.level-card .stars{font-size:clamp(12px,3vw,18px);margin-top:4px;color:#F59E0B}
+#levelSelect{background:linear-gradient(135deg,#a78bfa,#f9a8d4)}
+#levelSelect h2{font-size:clamp(18px,4.5vw,32px);color:#fff;font-weight:800;margin-bottom:clamp(10px,2.5vw,20px);text-shadow:0 3px 10px rgba(0,0,0,.15)}
+.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,2.5vw,18px);width:100%;max-width:480px}
+.level-card{background:rgba(255,255,255,.9);border-radius:20px;padding:clamp(14px,3.5vw,24px);cursor:pointer;box-shadow:0 6px 25px rgba(0,0,0,.1);transition:transform .2s,opacity .3s;text-align:center;border:3px solid transparent}
+.level-card:active{transform:scale(.94)}
+.level-card .icon{font-size:clamp(32px,8vw,48px)}
+.level-card .name{font-size:clamp(12px,3vw,18px);font-weight:700;color:#444;margin-top:4px}
+.level-card .stars{font-size:clamp(11px,2.5vw,16px);margin-top:3px;color:#F59E0B}
 
 /* GAME */
-#game{background:linear-gradient(180deg,#667eea,#5a67d8);padding:clamp(12px,3vw,20px)}
-.game-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:clamp(8px,2vw,16px)}
-.game-header .level-label{font-size:clamp(14px,3.5vw,22px);font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2)}
-.game-header .dots{display:flex;gap:6px}
-.game-header .dot{width:clamp(10px,2.5vw,16px);height:clamp(10px,2.5vw,16px);border-radius:50%;background:rgba(255,255,255,.3);transition:background .3s}
-.game-header .dot.done{background:#F59E0B;box-shadow:0 0 10px rgba(245,158,11,.6)}
-.game-header .dot.wrong{background:#EF4444}
+#game{background:linear-gradient(180deg,#a78bfa,#818cf8);padding:clamp(10px,2.5vw,18px)}
+.game-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:clamp(6px,1.5vw,12px)}
+.game-header .level-label{font-size:clamp(13px,3vw,20px);font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.game-header .dots{display:flex;gap:5px}
+.game-header .dot{width:clamp(9px,2vw,14px);height:clamp(9px,2vw,14px);border-radius:50%;background:rgba(255,255,255,.25);transition:background .3s}
+.game-header .dot.done{background:#F59E0B;box-shadow:0 0 8px rgba(245,158,11,.5)}
 .instruction-area{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0}
-.instruction-text{font-size:clamp(20px,5vw,36px);font-weight:700;color:#fff;text-align:center;text-shadow:0 3px 12px rgba(0,0,0,.2);margin-bottom:clamp(8px,2vw,16px);line-height:1.3}
-.btn-replay{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:50%;width:clamp(44px,10vw,60px);height:clamp(44px,10vw,60px);font-size:clamp(20px,5vw,30px);cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+.instruction-text{font-size:clamp(18px,4.5vw,32px);font-weight:700;color:#fff;text-align:center;text-shadow:0 3px 12px rgba(0,0,0,.15);margin-bottom:clamp(6px,1.5vw,12px);line-height:1.3}
+.btn-replay{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:50%;width:clamp(40px,9vw,56px);height:clamp(40px,9vw,56px);font-size:clamp(18px,4.5vw,26px);cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
 .btn-replay:active{background:rgba(255,255,255,.35)}
-.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,2.5vw,18px);width:100%;padding:clamp(8px,2vw,16px) 0;flex-shrink:0}
-.option-btn{height:clamp(70px,16vh,130px);border-radius:20px;border:4px solid rgba(255,255,255,.3);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2);box-shadow:0 4px 20px rgba(0,0,0,.12);transition:transform .15s,border-color .2s,opacity .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background-clip:padding-box}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,2vw,14px);width:100%;padding:clamp(6px,1.5vw,12px) 0;flex-shrink:0}
+.option-btn{height:clamp(65px,15vh,120px);border-radius:18px;border:4px solid rgba(255,255,255,.25);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.15);box-shadow:0 4px 16px rgba(0,0,0,.1);transition:transform .15s,border-color .2s,opacity .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background-clip:padding-box}
 .option-btn:active{transform:scale(.92)}
-.option-btn .option-value{font-size:clamp(36px,9vw,64px);line-height:1;transition:transform .3s}
-.option-btn .option-label{font-size:clamp(12px,3vw,18px);font-weight:600;margin-top:4px;opacity:.9}
+.option-btn .option-value{font-size:clamp(32px,8vw,56px);line-height:1;transition:transform .3s}
+.option-btn .option-label{font-size:clamp(11px,2.5vw,16px);font-weight:600;margin-top:3px;opacity:.9}
 .option-btn.correct{border-color:#10B981;animation:pulse .5s;z-index:2}
 .option-btn.wrong{border-color:#EF4444;animation:shake .4s}
-.option-btn.hint-glow{border-color:#F59E0B;animation:glowPulse .8s}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 10px rgba(245,158,11,.4)}50%{box-shadow:0 0 30px rgba(245,158,11,.8)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 
 /* CELEBRATION OVERLAY */
-#celebration{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;display:none}
+#celebration{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:15;display:none}
 #celebration.active{display:block}
-.confetti{position:absolute;width:10px;height:10px;border-radius:2px;animation:confettiFall linear forwards}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear forwards}
 @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 
 /* COMPLETE */
-#complete{background:linear-gradient(135deg,#667eea,#764ba2)}
-#complete .big-emoji{font-size:clamp(60px,15vw,100px);margin-bottom:10px}
-#complete h2{font-size:clamp(24px,6vw,40px);color:#fff;font-weight:800;margin-bottom:4px;text-shadow:0 3px 10px rgba(0,0,0,.2)}
-#complete .msg{font-size:clamp(16px,4vw,24px);color:rgba(255,255,255,.9);margin-bottom:clamp(12px,3vw,24px);text-align:center}
-#complete .stars-show{font-size:clamp(40px,10vw,70px);margin-bottom:clamp(16px,4vw,30px);letter-spacing:8px}
-#complete .score-detail{font-size:clamp(14px,3.5vw,20px);color:rgba(255,255,255,.85);margin-bottom:clamp(16px,4vw,28px)}
-.complete-btns{display:flex;gap:clamp(12px,3vw,20px);flex-wrap:wrap;justify-content:center}
-.btn-primary,.btn-secondary{border:none;border-radius:40px;font-weight:700;cursor:pointer;transition:transform .2s;font-size:clamp(16px,4vw,24px);padding:clamp(12px,3vw,20px) clamp(24px,6vw,48px)}
-.btn-primary{background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;box-shadow:0 6px 20px rgba(239,68,68,.4)}
-.btn-secondary{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3)}
+#complete{background:linear-gradient(135deg,#a78bfa,#f9a8d4)}
+#complete .big-emoji{font-size:clamp(50px,13vw,80px);margin-bottom:8px}
+#complete h2{font-size:clamp(22px,5.5vw,36px);color:#fff;font-weight:800;margin-bottom:3px;text-shadow:0 3px 10px rgba(0,0,0,.15)}
+#complete .msg{font-size:clamp(14px,3.5vw,22px);color:rgba(255,255,255,.9);margin-bottom:clamp(10px,2.5vw,20px);text-align:center}
+#complete .stars-show{font-size:clamp(36px,9vw,60px);margin-bottom:clamp(12px,3vw,24px);letter-spacing:6px}
+#complete .score-detail{font-size:clamp(13px,3vw,18px);color:rgba(255,255,255,.85);margin-bottom:clamp(14px,3vw,24px)}
+.complete-btns{display:flex;gap:clamp(10px,2.5vw,18px);flex-wrap:wrap;justify-content:center}
+.btn-primary,.btn-secondary{border:none;border-radius:36px;font-weight:700;cursor:pointer;transition:transform .2s;font-size:clamp(14px,3.5vw,22px);padding:clamp(10px,2.5vw,18px) clamp(20px,5vw,42px)}
+.btn-primary{background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;box-shadow:0 6px 20px rgba(239,68,68,.35)}
+.btn-secondary{background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.25)}
 .btn-primary:active,.btn-secondary:active{transform:scale(.93)}
+
+/* BREATHING OVERLAY */
+#breathingOverlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:25;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#e0e7ff,#a78bfa)}
+#breathingOverlay.active{display:flex}
+.breathing-circle{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#c4b5fd,#7c3aed);box-shadow:0 0 40px rgba(124,58,237,.35);transition:transform 3s ease,width 3s ease,height 3s ease}
+.breathing-circle.inhale{width:160px;height:160px;transform:scale(1)}
+.breathing-circle.exhale{width:80px;height:80px;transform:scale(.85)}
+.breathing-text{font-size:clamp(22px,5.5vw,36px);font-weight:700;color:#fff;margin-top:clamp(16px,4vw,28px);text-shadow:0 3px 10px rgba(0,0,0,.15)}
+.breathing-sub{font-size:clamp(13px,3vw,18px);color:rgba(255,255,255,.8);margin-top:clamp(4px,1vw,8px)}
+.btn-skip{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);border-radius:30px;color:#fff;font-size:clamp(14px,3.5vw,20px);font-weight:600;padding:clamp(8px,2vw,14px) clamp(20px,5vw,36px);cursor:pointer;margin-top:clamp(24px,6vw,40px);transition:background .2s}
+.btn-skip:active{background:rgba(255,255,255,.4);transform:scale(.95)}
+
+/* CALM CORNER */
+#calmCorner{position:absolute;top:0;left:0;width:100%;height:100%;z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#dbeafe,#ede9fe,#fce7f3);padding:30px}
+#calmCorner.active{display:flex}
+.calm-clouds{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.calm-cloud{position:absolute;font-size:clamp(30px,8vw,60px);opacity:.3;animation:cloudFloat linear infinite}
+.calm-cloud:nth-child(1){top:10%;animation-duration:18s;font-size:clamp(36px,9vw,64px)}
+.calm-cloud:nth-child(2){top:30%;animation-duration:22s;animation-delay:-5s;font-size:clamp(28px,7vw,50px)}
+.calm-cloud:nth-child(3){top:55%;animation-duration:16s;animation-delay:-10s;font-size:clamp(32px,8vw,55px)}
+.calm-cloud:nth-child(4){top:75%;animation-duration:20s;animation-delay:-3s;font-size:clamp(24px,6vw,42px)}
+@keyframes cloudFloat{0%{left:-80px}100%{left:calc(100% + 80px)}}
+.calm-emoji{font-size:clamp(60px,15vw,100px);margin-bottom:clamp(12px,3vw,20px);animation:calmFloat 4s ease-in-out infinite}
+@keyframes calmFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.calm-title{font-size:clamp(26px,6.5vw,42px);font-weight:800;color:#6d28d9;margin-bottom:clamp(8px,2vw,16px);text-shadow:0 2px 8px rgba(0,0,0,.08)}
+.calm-text{font-size:clamp(16px,4vw,26px);color:#7c3aed;text-align:center;max-width:80%;line-height:1.5;font-weight:500}
+.calm-close-text{font-size:clamp(12px,2.5vw,16px);color:rgba(124,58,237,.5);margin-top:clamp(24px,6vw,40px)}
 
 @media(max-width:480px){
   .screen{padding:12px}
-  .instruction-text{font-size:clamp(18px,4.5vw,28px)}
-  .options-grid{gap:6px;padding:4px 0}
-  .option-btn{height:clamp(65px,15vh,110px);border-radius:16px;border-width:3px}
-  .option-btn .option-value{font-size:clamp(28px,8vw,48px)}
-  #game{padding:clamp(8px,2vw,16px)}
-  .game-header{margin-bottom:4px}
-  #home .btn-start{padding:clamp(14px,3.5vw,22px) clamp(30px,8vw,60px)}
+  .instruction-text{font-size:clamp(16px,4vw,24px)}
+  .options-grid{gap:5px;padding:3px 0}
+  .option-btn{height:clamp(58px,14vh,100px);border-radius:14px;border-width:3px}
+  .option-btn .option-value{font-size:clamp(24px,7vw,42px)}
+  #game{padding:clamp(6px,1.5vw,12px)}
+  .game-header{margin-bottom:2px}
+  #home .btn-start{padding:clamp(12px,3vw,20px) clamp(26px,7vw,54px)}
+  .sticker-grid{gap:6px}
+  .sticker{width:clamp(30px,7vw,44px);height:clamp(30px,7vw,44px);font-size:clamp(16px,4vw,24px)}
 }
-@media(min-height:800px){
-  .game-header{margin-bottom:12px}
-  .options-grid{padding:12px 0;gap:14px}
+@media(min-height:750px){
+  .game-header{margin-bottom:10px}
+  .options-grid{padding:10px 0;gap:12px}
 }
 </style>
 </head>
@@ -96,13 +144,44 @@ body{background:linear-gradient(135deg,#667eea,#764ba2);display:flex;justify-con
 <div id="app">
   <div id="celebration"></div>
 
+  <!-- CALM BUTTON -->
+  <button id="calmBtn" onclick="openCalmCorner()" aria-label="Tenang">☁️</button>
+
+  <!-- MASCOT -->
+  <div class="mascot-wrap">
+    <div class="mascot idle" id="mascot">🐱</div>
+    <div class="mascot-say" id="mascotSay"></div>
+  </div>
+
+  <!-- BREATHING OVERLAY -->
+  <div id="breathingOverlay">
+    <div class="breathing-circle" id="breathCircle"></div>
+    <div class="breathing-text" id="breathText">Tarik napas...</div>
+    <div class="breathing-sub" id="breathSub">ikuti gerakan lingkarannya</div>
+    <button class="btn-skip" onclick="skipBreathing()">⏭️ Langsung main</button>
+  </div>
+
+  <!-- CALM CORNER -->
+  <div id="calmCorner" onclick="closeCalmCorner(event)">
+    <div class="calm-clouds">
+      <div class="calm-cloud">☁️</div>
+      <div class="calm-cloud">☁️</div>
+      <div class="calm-cloud">☁️</div>
+      <div class="calm-cloud">☁️</div>
+    </div>
+    <div class="calm-emoji">🌟</div>
+    <div class="calm-title">Waktunya Tenang</div>
+    <div class="calm-text" id="calmText">Tarik napas pelan-pelan...<br>kamu hebat sudah bermain sejauh ini</div>
+    <div class="calm-close-text">— sentuh di luar untuk kembali —</div>
+  </div>
+
   <!-- HOME -->
   <div id="home" class="screen active">
     <div class="logo">🌟</div>
     <h1>Petualangan<br>Warna & Angka</h1>
-    <div class="sub">Ayo belajar sambil bermain!</div>
+    <div class="sub">Main yuk! 🐱</div>
     <button class="btn-start" onclick="goLevelSelect()">Mulai</button>
-    <div class="stars-row">⭐⭐⭐</div>
+    <div class="sticker-grid" id="stickerGrid"></div>
   </div>
 
   <!-- LEVEL SELECT -->
@@ -145,10 +224,10 @@ const COLORS = [
 ];
 
 const LEVELS = [
-  { id:0, name:'Kenal Warna', icon:'🔴', desc:'Cari warna yang disebut' },
-  { id:1, name:'Kenal Angka', icon:'1️⃣', desc:'Cari angka yang disebut' },
-  { id:2, name:'Warna + Angka', icon:'🎨', desc:'Cari angka dengan warna tertentu' },
-  { id:3, name:'Dua Langkah', icon:'🦶', desc:'Ikuti dua instruksi berurutan' },
+  { id:0, name:'Kenal Warna', icon:'🔴', sticker:'⭐', desc:'Cari warna yang disebut' },
+  { id:1, name:'Kenal Angka', icon:'1️⃣', sticker:'🎈', desc:'Cari angka yang disebut' },
+  { id:2, name:'Warna + Angka', icon:'🎨', sticker:'🚀', desc:'Cari angka dengan warna tertentu' },
+  { id:3, name:'Dua Langkah', icon:'🦶', sticker:'👑', desc:'Ikuti dua instruksi berurutan' },
 ];
 
 const NUMBERS = [1,2,3,4,5];
@@ -156,43 +235,141 @@ const TOTAL_ROUNDS = 5;
 const STARS_3 = 5;
 const STARS_2 = 4;
 
+const PUJIAN = [
+  'Hebat!', 'Pintar!', 'Keren!', 'Bagus sekali!',
+  'Wah hebat!', 'Mantap!', 'Yes bagus!',
+  'Kamu bisa!', 'Nah gitu dong!', 'Luar biasa!',
+  'Hebat sekali!', 'Kamu jago!', 'Pro!',
+];
+let lastPujian = -1;
+
 // ===== STATE =====
 let state = {
-  currentLevel: 0,
-  currentRound: 0,
-  correctCount: 0,
-  subStep: 0,
-  subSteps: [],
-  questionData: null,
-  isProcessing: false,
-  levelProgress: [false,false,false,false],
+  currentLevel: 0, currentRound: 0, correctCount: 0,
+  subStep: 0, questionData: null, isProcessing: false,
   levelStars: [0,0,0,0],
+  stickers: [false,false,false,false],
+};
+
+// ===== SOUND ENGINE =====
+const Sound = {
+  ctx: null,
+  init(){
+    try{this.ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
+  },
+  resume(){
+    if(this.ctx&&this.ctx.state==='suspended') this.ctx.resume();
+  },
+  _play(freq,dur,type='sine',vol=.15){
+    if(!this.ctx)return;
+    this.resume();
+    const o=this.ctx.createOscillator();const g=this.ctx.createGain();
+    o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+dur);
+    o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+dur);
+  },
+  correct(){
+    if(!this.ctx)return;
+    this.resume();
+    const t=this.ctx.currentTime;
+    [523,659,784].forEach((f,i)=>{const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.12,t+i*.1);g.gain.exponentialRampToValueAtTime(.001,t+i*.1+.3);o.connect(g);g.connect(this.ctx.destination);o.start(t+i*.1);o.stop(t+i*.1+.3)});
+  },
+  wrong(){
+    if(!this.ctx)return;
+    this.resume();
+    const t=this.ctx.currentTime;
+    [350,280].forEach((f,i)=>{const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.08,t+i*.12);g.gain.exponentialRampToValueAtTime(.001,t+i*.12+.25);o.connect(g);g.connect(this.ctx.destination);o.start(t+i*.12);o.stop(t+i*.12+.25)});
+  },
+  complete(){
+    if(!this.ctx)return;
+    this.resume();
+    const t=this.ctx.currentTime;
+    [523,659,784,1047].forEach((f,i)=>{const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.12,t+i*.15);g.gain.exponentialRampToValueAtTime(.001,t+i*.15+.5);o.connect(g);g.connect(this.ctx.destination);o.start(t+i*.15);o.stop(t+i*.15+.5)});
+  },
+  meow(){
+    if(!this.ctx)return;
+    this.resume();
+    const t=this.ctx.currentTime;
+    [800,600].forEach((f,i)=>{const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.type='sine';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*(i?1.2:.8),t+.15);g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+.2)});
+  },
+  calm(){
+    if(!this.ctx)return;
+    this.resume();
+    const t=this.ctx.currentTime;
+    const g=this.ctx.createGain();const n=this.ctx.createOscillator();
+    n.type='sine';n.frequency.value=220;g.gain.setValueAtTime(.03,t);
+    g.gain.exponentialRampToValueAtTime(.001,t+6);
+    n.connect(g);g.connect(this.ctx.destination);n.start();n.stop(t+6);
+    // soft noise layer
+    const bufSize=this.ctx.sampleRate*2;const buf=this.ctx.createBuffer(1,bufSize,this.ctx.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<bufSize;i++)d[i]=(Math.random()*2-1)*.02;
+    const sn=this.ctx.createBufferSource();sn.buffer=buf;
+    const sg=this.ctx.createGain();sg.gain.setValueAtTime(.04,t);sg.gain.exponentialRampToValueAtTime(.001,t+8);
+    const f=this.ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=400;
+    sn.connect(f);f.connect(sg);sg.connect(this.ctx.destination);sn.start(t);sn.stop(t+8);
+  },
+  stopAll(){
+    if(!this.ctx)return;
+    this.resume();
+    this.ctx.close().then(()=>{this.ctx=null;this.init()});
+  }
 };
 
 // ===== SPEECH =====
-function speak(text, rate=0.85, pitch=1.15) {
-  if (!('speechSynthesis' in window)) return;
+function speak(text,rate=.85,pitch=1.15){
+  if(!('speechSynthesis' in window))return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'id-ID';
-  u.rate = rate;
-  u.pitch = pitch;
-  u.volume = 1;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='id-ID';u.rate=rate;u.pitch=pitch;u.volume=1;
   window.speechSynthesis.speak(u);
 }
 
 // ===== UTILITY =====
-function shuffle(arr) {
-  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}
-  return arr;
-}
-function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pickRandom(a){return a[Math.floor(Math.random()*a.length)]}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function getStars(c){return c>=STARS_3?3:c>=STARS_2?2:1}
+function pujianRandom(){
+  let p;
+  do{p=pickRandom(PUJIAN)}while(p===lastPujian);
+  lastPujian=p;return p;
+}
 
-function getStars(correct){
-  if(correct>=STARS_3) return 3;
-  if(correct>=STARS_2) return 2;
-  return 1;
+// ===== MASCOT =====
+function mascotSet(anim,text){
+  const el=document.getElementById('mascot');
+  const say=document.getElementById('mascotSay');
+  el.className='mascot';
+  if(anim)el.classList.add(anim);
+  if(text){say.textContent=text;say.classList.add('show')}else{say.classList.remove('show')}
+}
+function mascotReaction(type){
+  if(type==='correct'){
+    mascotSet('happy',pujianRandom());
+    setTimeout(()=>mascotSet('idle'),1400);
+  }else if(type==='wrong'){
+    mascotSet('encourage','Coba lagi yuk!');
+    setTimeout(()=>mascotSet('idle'),800);
+  }else if(type==='complete'){
+    mascotSet('celebrate','HEBAT! 🎉');
+    setTimeout(()=>mascotSet('idle'),2000);
+  }else if(type==='start'){
+    mascotSet('happy','Ayo main!');
+    Sound.meow();
+    setTimeout(()=>mascotSet('idle'),1200);
+  }
+}
+
+// ===== STICKERS =====
+function renderStickers(){
+  const grid=document.getElementById('stickerGrid');
+  grid.innerHTML='';
+  LEVELS.forEach((lv,i)=>{
+    const s=document.createElement('div');
+    s.className='sticker'+(state.stickers[i]?'':' locked');
+    s.textContent=state.stickers[i]?lv.sticker:'?';
+    grid.appendChild(s);
+  });
 }
 
 // ===== SCREEN MANAGEMENT =====
@@ -206,329 +383,254 @@ function goLevelSelect(){
   hideCelebration();
   showScreen('levelSelect');
   renderLevelSelect();
+  Sound.resume();
+}
+function showHome(){
+  hideCelebration();
+  showScreen('home');
+  renderStickers();
 }
 
 // ===== LEVEL SELECT =====
 function renderLevelSelect(){
-  const grid = document.getElementById('levelGrid');
-  grid.innerHTML = '';
+  const grid=document.getElementById('levelGrid');
+  grid.innerHTML='';
   LEVELS.forEach((lv,i)=>{
-    const starCount = state.levelStars[i]||0;
-    const card = document.createElement('div');
-    card.className = 'level-card';
-    card.innerHTML = `
-      <div class="icon">${lv.icon}</div>
-      <div class="name">${lv.name}</div>
-      <div class="stars">${'⭐'.repeat(starCount)}${'☆'.repeat(3-starCount)}</div>
-    `;
-    card.onclick = ()=>startLevel(i);
+    const starCount=state.levelStars[i]||0;
+    const card=document.createElement('div');
+    card.className='level-card';
+    card.innerHTML=`<div class="icon">${lv.icon}</div><div class="name">${lv.name}</div><div class="stars">${'⭐'.repeat(starCount)}${'☆'.repeat(3-starCount)}</div>`;
+    card.onclick=()=>startBreathing(i);
     grid.appendChild(card);
   });
 }
 
+// ===== BREATHING =====
+let breathingCancel=false;
+function startBreathing(lv){
+  state.currentLevel=lv;
+  showScreen('game');
+  document.getElementById('breathingOverlay').classList.add('active');
+  breathingCancel=false;
+  runBreathingCycle(0);
+}
+function skipBreathing(){
+  breathingCancel=true;
+  document.getElementById('breathingOverlay').classList.remove('active');
+  beginLevel();
+}
+function runBreathingCycle(cycle){
+  if(breathingCancel||cycle>=2){document.getElementById('breathingOverlay').classList.remove('active');beginLevel();return}
+  const circle=document.getElementById('breathCircle');
+  const text=document.getElementById('breathText');
+  const sub=document.getElementById('breathSub');
+  // inhale
+  circle.className='breathing-circle inhale';
+  text.textContent='Tarik napas...';
+  sub.textContent='hirup perlahan';
+  speak('Tarik napas',.7,1.1);
+  setTimeout(()=>{
+    if(breathingCancel)return;
+    // hold
+    circle.className='breathing-circle inhale';
+    text.textContent='Tahan...';
+    sub.textContent='tahan sebentar';
+    setTimeout(()=>{
+      if(breathingCancel)return;
+      // exhale
+      circle.className='breathing-circle exhale';
+      text.textContent='Hembuskan...';
+      sub.textContent='hembuskan pelan-pelan';
+      speak('Hembuskan',.7,1.1);
+      setTimeout(()=>{
+        if(breathingCancel)return;
+        runBreathingCycle(cycle+1);
+      },3500);
+    },1500);
+  },3500);
+}
+
+function beginLevel(){
+  mascotReaction('start');
+  state.currentRound=0;state.correctCount=0;state.subStep=0;state.isProcessing=false;
+  questions=getLevelQuestions(state.currentLevel);
+  renderHeader();
+  setTimeout(showQuestion,500);
+}
+
 // ===== LEVEL GENERATORS =====
-function genColorRound(round){
-  const shuffled = shuffle([...COLORS]);
-  const correct = shuffled[0];
-  return { options:shuffled, correctIdx:0, instruction:`Pilih warna ${correct.name}!` };
+function genColorRound(){
+  const s=shuffle([...COLORS]);return{options:s,correctIdx:0,instruction:`Pilih warna ${s[0].name}!`};
 }
-
-function genNumberRound(round){
-  const available = shuffle([...NUMBERS]);
-  const correct = available[0];
-  let options = [correct];
-  const rest = NUMBERS.filter(n=>n!==correct);
-  shuffle(rest);
-  options.push(rest[0],rest[1],rest[2]);
-  shuffle(options);
-  const correctIdx = options.indexOf(correct);
-  return { options, correctIdx, instruction:`Mana angka ${correct}?` };
+function genNumberRound(){
+  const a=shuffle([...NUMBERS]);const c=a[0];
+  let o=[c];const r=NUMBERS.filter(n=>n!==c);shuffle(r);
+  o.push(r[0],r[1],r[2]);shuffle(o);
+  return{options:o,correctIdx:o.indexOf(c),instruction:`Mana angka ${c}?`};
 }
-
-function genColorNumberRound(round){
-  const color = pickRandom(COLORS);
-  const number = pickRandom(NUMBERS);
-  const correct = { number, color };
-  let distractorColors = COLORS.filter(c=>c.id!==color.id);
-  shuffle(distractorColors);
-  let distractorNumbers = NUMBERS.filter(n=>n!==number);
-  shuffle(distractorNumbers);
-  const options = [
-    correct,
-    { number:distractorNumbers[0], color },
-    { number:distractorNumbers[1], color:distractorColors[0] },
-    { number:distractorNumbers[2], color:distractorColors[1] },
-  ];
-  shuffle(options);
-  const correctIdx = options.findIndex(o=>o.number===number&&o.color.id===color.id);
-  return { options, correctIdx, instruction:`Pilih angka ${number} warna ${color.name}!` };
+function genColorNumberRound(){
+  const color=pickRandom(COLORS);const number=pickRandom(NUMBERS);
+  const dC=shuffle(COLORS.filter(c=>c.id!==color.id));
+  const dN=shuffle(NUMBERS.filter(n=>n!==number));
+  const o=[{number,color},{number:dN[0],color},{number:dN[1],color:dC[0]},{number:dN[2],color:dC[1]}];
+  shuffle(o);
+  return{options:o,correctIdx:o.findIndex(x=>x.number===number&&x.color.id===color.id),instruction:`Pilih angka ${number} warna ${color.name}!`};
 }
-
-function genTwoStepRound(round){
-  const color = pickRandom(COLORS);
-  const number = pickRandom(NUMBERS);
-  return {
-    steps:[
-      { type:'color', target:color, options:shuffle([...COLORS]), instruction:`Sentuh warna ${color.name}!` },
-      { type:'number', target:number, options:shuffle([...NUMBERS]), instruction:`Sekarang sentuh angka ${number}!` },
-    ]
-  };
+function genTwoStepRound(){
+  const color=pickRandom(COLORS);const number=pickRandom(NUMBERS);
+  return{steps:[{type:'color',target:color,options:shuffle([...COLORS]),instruction:`Sentuh warna ${color.name}!`},{type:'number',target:number,options:shuffle([...NUMBERS]),instruction:`Sekarang sentuh angka ${number}!`}]};
 }
-
-function getLevelQuestions(level){
-  const qs = [];
+function getLevelQuestions(lv){
+  const qs=[];
   for(let r=0;r<TOTAL_ROUNDS;r++){
-    if(level===0) qs.push(genColorRound(r));
-    else if(level===1) qs.push(genNumberRound(r));
-    else if(level===2) qs.push(genColorNumberRound(r));
-    else if(level===3) qs.push(genTwoStepRound(r));
+    if(lv===0)qs.push(genColorRound());
+    else if(lv===1)qs.push(genNumberRound());
+    else if(lv===2)qs.push(genColorNumberRound());
+    else if(lv===3)qs.push(genTwoStepRound());
   }
   return qs;
 }
 
 // ===== GAME ENGINE =====
-let questions = [];
-
-function startLevel(lv){
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  hideCelebration();
-  state.currentLevel = lv;
-  state.currentRound = 0;
-  state.correctCount = 0;
-  state.subStep = 0;
-  state.isProcessing = false;
-  questions = getLevelQuestions(lv);
-  showScreen('game');
-  renderHeader();
-  showQuestion();
-}
+let questions=[];
 
 function renderHeader(){
-  const lv = LEVELS[state.currentLevel];
-  document.getElementById('levelLabel').textContent = `Level ${state.currentLevel+1}: ${lv.icon} ${lv.name}`;
-  const dots = document.getElementById('dots');
-  dots.innerHTML = '';
-  for(let i=0;i<TOTAL_ROUNDS;i++){
-    const dot = document.createElement('div');
-    dot.className = 'dot';
-    if(i<state.currentRound) dot.classList.add('done');
-    dots.appendChild(dot);
-  }
+  const lv=LEVELS[state.currentLevel];
+  document.getElementById('levelLabel').textContent=`Level ${state.currentLevel+1}: ${lv.icon} ${lv.name}`;
+  const dots=document.getElementById('dots');dots.innerHTML='';
+  for(let i=0;i<TOTAL_ROUNDS;i++){const d=document.createElement('div');d.className='dot';if(i<state.currentRound)d.classList.add('done');dots.appendChild(d)}
 }
 
 function showQuestion(){
-  const q = questions[state.currentRound];
-  state.isProcessing = false;
-
-  if(state.currentLevel===3){
-    state.subStep = 0;
-    showTwoStepPart(q);
-  } else {
-    state.questionData = q;
-    renderOptions(q);
-    document.getElementById('instructionText').textContent = q.instruction;
-    speak(q.instruction);
-  }
+  const q=questions[state.currentRound];
+  state.isProcessing=false;
+  if(state.currentLevel===3){state.subStep=0;showTwoStepPart(q)}
+  else{state.questionData=q;renderOptions(q);document.getElementById('instructionText').textContent=q.instruction;speak(q.instruction)}
 }
 
 function showTwoStepPart(q){
-  state.isProcessing = false;
-  const step = q.steps[state.subStep];
-  state.questionData = null;
-
+  state.isProcessing=false;const step=q.steps[state.subStep];state.questionData=null;
   if(step.type==='color'){
-    const optData = step.options.map(c=>({ value:c.name, color:c.hex, id:c.id, label:'' }));
-    renderRawOptions(optData, (idx)=>{
-      if(state.isProcessing) return;
-      const chosen = step.options[idx];
-      if(chosen.id===step.target.id){
-        state.isProcessing = true;
-        const btn = document.querySelectorAll('.option-btn')[idx];
-        btn.classList.add('correct');
-        speak('Hebat!');
-        setTimeout(()=>{
-          state.subStep = 1;
-          showTwoStepPart(q);
-        },1200);
-      } else {
-        wrongAnswer(idx);
-      }
-    });
-    document.getElementById('instructionText').textContent = step.instruction;
-    speak(step.instruction);
-  } else {
-    const optData = step.options.map(n=>({ value:n, color:'#8B5CF6', id:n, label:'' }));
-    renderRawOptions(optData, (idx)=>{
-      if(state.isProcessing) return;
-      const chosen = step.options[idx];
-      if(chosen===step.target){
-        state.isProcessing = true;
-        const btn = document.querySelectorAll('.option-btn')[idx];
-        btn.classList.add('correct');
-        speak('Hebat!');
-        setTimeout(()=>{
-          state.correctCount++;
-          advanceRound();
-        },1200);
-      } else {
-        wrongAnswer(idx);
-      }
-    });
-    document.getElementById('instructionText').textContent = step.instruction;
-    speak(step.instruction);
+    const o=step.options.map(c=>({value:c.name,color:c.hex,id:c.id,label:''}));
+    renderRawOptions(o,i=>{if(state.isProcessing)return;const c=step.options[i];if(c.id===step.target.id){
+      state.isProcessing=true;
+      document.querySelectorAll('.option-btn')[i].classList.add('correct');
+      Sound.correct();mascotReaction('correct');
+      setTimeout(()=>{state.subStep=1;showTwoStepPart(q)},1200);
+    }else{wrongAnswer(i)}});
+    document.getElementById('instructionText').textContent=step.instruction;speak(step.instruction);
+  }else{
+    const o=step.options.map(n=>({value:n,color:'#8B5CF6',id:n,label:''}));
+    renderRawOptions(o,i=>{if(state.isProcessing)return;const c=step.options[i];if(c===step.target){
+      state.isProcessing=true;
+      document.querySelectorAll('.option-btn')[i].classList.add('correct');
+      Sound.correct();mascotReaction('correct');
+      setTimeout(()=>{state.correctCount++;advanceRound()},1200);
+    }else{wrongAnswer(i)}});
+    document.getElementById('instructionText').textContent=step.instruction;speak(step.instruction);
   }
 }
 
 function renderOptions(q){
   renderRawOptions(q.options.map((o,i)=>{
-    if(state.currentLevel===0){
-      return { value:'', color:o.hex, id:o.id, label:o.name };
-    } else if(state.currentLevel===1){
-      return { value:o, color:'#8B5CF6', id:o, label:'' };
-    } else {
-      return { value:o.number, color:o.color.hex, id:o.number+o.color.id, label:o.color.name };
-    }
-  }), (idx)=>{
-    if(state.isProcessing) return;
-    if(idx===q.correctIdx){
-      state.isProcessing = true;
-      const btns = document.querySelectorAll('.option-btn');
-      btns[idx].classList.add('correct');
-      speak('Hebat!');
-      document.getElementById('instructionText').textContent = 'Hebat! 🎉';
-      setTimeout(()=>{
-        state.correctCount++;
-        advanceRound();
-      },1200);
-    } else {
-      wrongAnswer(idx);
-    }
-  });
+    if(state.currentLevel===0)return{value:'',color:o.hex,id:o.id,label:o.name};
+    if(state.currentLevel===1)return{value:o,color:'#8B5CF6',id:o,label:''};
+    return{value:o.number,color:o.color.hex,id:o.number+o.color.id,label:o.color.name};
+  }),i=>{if(state.isProcessing)return;if(i===q.correctIdx){
+    state.isProcessing=true;
+    const b=document.querySelectorAll('.option-btn');b[i].classList.add('correct');
+    Sound.correct();mascotReaction('correct');
+    document.getElementById('instructionText').textContent='Hebat! 🎉';
+    setTimeout(()=>{state.correctCount++;advanceRound()},1200);
+  }else{wrongAnswer(i)}});
 }
 
-function renderRawOptions(items, onClick){
-  const grid = document.getElementById('optionsGrid');
-  grid.innerHTML = '';
+function renderRawOptions(items,onClick){
+  const grid=document.getElementById('optionsGrid');grid.innerHTML='';
   items.forEach((item,i)=>{
-    const btn = document.createElement('div');
-    btn.className = 'option-btn';
-    btn.style.backgroundColor = item.color;
-    btn.innerHTML = `
-      <div class="option-value">${item.value}</div>
-      ${item.label ? `<div class="option-label">${item.label}</div>` : ''}
-    `;
-    btn.onclick = ()=>onClick(i);
-    grid.appendChild(btn);
+    const btn=document.createElement('div');btn.className='option-btn';
+    btn.style.backgroundColor=item.color;
+    btn.innerHTML=`<div class="option-value">${item.value}</div>${item.label?`<div class="option-label">${item.label}</div>`:''}`;
+    btn.onclick=()=>onClick(i);grid.appendChild(btn);
   });
 }
 
 function wrongAnswer(idx){
-  state.isProcessing = true;
-  const btns = document.querySelectorAll('.option-btn');
-  btns[idx].classList.add('wrong');
+  state.isProcessing=true;
+  const b=document.querySelectorAll('.option-btn');
+  b[idx].classList.add('wrong');
+  Sound.wrong();mascotReaction('wrong');
   speak('Coba lagi!');
-  setTimeout(()=>{
-    btns[idx].classList.remove('wrong');
-    state.isProcessing = false;
-  },600);
+  setTimeout(()=>{b[idx].classList.remove('wrong');state.isProcessing=false},600);
 }
 
 function advanceRound(){
   state.currentRound++;
-  if(state.currentRound>=TOTAL_ROUNDS){
-    showComplete();
-  } else {
-    renderHeader();
-    showQuestion();
-  }
+  if(state.currentRound>=TOTAL_ROUNDS)showComplete();
+  else{renderHeader();showQuestion()}
 }
 
 function replayInstruction(){
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
-  if(state.currentLevel===3){
-    const q = questions[state.currentRound];
-    if(q){
-      const step = q.steps[state.subStep];
-      if(step) speak(step.instruction);
-    }
-  } else if(state.questionData){
-    speak(state.questionData.instruction);
-  }
+  if('speechSynthesis' in window)window.speechSynthesis.cancel();
+  if(state.currentLevel===3){const q=questions[state.currentRound];if(q){const s=q.steps[state.subStep];if(s)speak(s.instruction)}}
+  else if(state.questionData)speak(state.questionData.instruction);
 }
 
 // ===== COMPLETE =====
 function showComplete(){
   showScreen('complete');
-  const correct = state.correctCount;
-  const stars = getStars(correct);
-  state.levelStars[state.currentLevel] = Math.max(state.levelStars[state.currentLevel]||0, stars);
+  const correct=state.correctCount;const stars=getStars(correct);
+  state.levelStars[state.currentLevel]=Math.max(state.levelStars[state.currentLevel]||0,stars);
+  if(stars>0)state.stickers[state.currentLevel]=true;
 
-  const emojis = ['💪','👏','🎉','🌟','🏆'];
-  document.getElementById('completeEmoji').textContent = stars===3?'🏆':(stars===2?'🎉':'💪');
-  document.getElementById('completeTitle').textContent = stars===3?'Luar Biasa!':(stars===2?'Bagus!':'Ayo Lagi!');
-  const msgs = {
-    5:'Kamu hebat banget! Semua benar! 🎉',
-    4:'Hampir sempurna! Coba lagi! 💪',
-    3:'Bagus! Ayo latihan lagi!',
-  };
-  document.getElementById('completeMsg').textContent = msgs[correct]||`Kamu dapat ${correct} benar! Ayo coba lagi!`;
-  document.getElementById('completeStars').textContent = '⭐'.repeat(stars)+'☆'.repeat(3-stars);
-  document.getElementById('scoreDetail').textContent = `${correct} dari ${TOTAL_ROUNDS} benar`;
+  document.getElementById('completeEmoji').textContent=stars===3?'🏆':(stars===2?'🎉':'💪');
+  document.getElementById('completeTitle').textContent=stars===3?'Luar Biasa!':(stars===2?'Bagus!':'Ayo Lagi!');
+  const msgs={5:'Kamu hebat banget! Semua benar! 🎉',4:'Hampir sempurna! Coba lagi! 💪',3:'Bagus! Ayo latihan lagi!'};
+  document.getElementById('completeMsg').textContent=msgs[correct]||`Kamu dapat ${correct} benar! Ayo coba lagi!`;
+  document.getElementById('completeStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('scoreDetail').textContent=`${correct} dari ${TOTAL_ROUNDS} benar`;
 
-  const btns = document.getElementById('completeBtns');
-  btns.innerHTML = '';
-  if(state.currentLevel<3){
-    const next = document.createElement('button');
-    next.className = 'btn-primary';
-    next.textContent = `Level ${state.currentLevel+2} →`;
-    next.onclick = ()=>startLevel(state.currentLevel+1);
-    btns.appendChild(next);
-  }
-  const retry = document.createElement('button');
-  retry.className = 'btn-secondary';
-  retry.textContent = '🔄 Ulang Level';
-  retry.onclick = ()=>startLevel(state.currentLevel);
-  btns.appendChild(retry);
-  const home = document.createElement('button');
-  home.className = 'btn-secondary';
-  home.textContent = '🏠 Home';
-  home.onclick = goLevelSelect;
-  btns.appendChild(home);
+  const btns=document.getElementById('completeBtns');btns.innerHTML='';
+  if(state.currentLevel<3){const n=document.createElement('button');n.className='btn-primary';n.textContent=`Level ${state.currentLevel+2} →`;n.onclick=()=>startBreathing(state.currentLevel+1);btns.appendChild(n)}
+  const retry=document.createElement('button');retry.className='btn-secondary';retry.textContent='🔄 Ulang Level';retry.onclick=()=>startBreathing(state.currentLevel);btns.appendChild(retry);
+  const home=document.createElement('button');home.className='btn-secondary';home.textContent='🏠 Home';home.onclick=showHome;btns.appendChild(home);
 
-  celebrate(stars===3?12:(stars===2?8:4));
-  speak(stars===3?'Hebat! Kamu luar biasa!':(stars===2?'Bagus sekali!':'Ayo coba lagi!'));
+  Sound.complete();mascotReaction('complete');
+  celebrate(stars===3?10:(stars===2?6:3));
+  const msg=stars===3?'Hebat! Kamu luar biasa!':(stars===2?'Bagus sekali!':'Ayo coba lagi!');
+  setTimeout(()=>speak(msg),400);
 }
 
 // ===== CELEBRATION =====
-function hideCelebration(){
-  const el = document.getElementById('celebration');
-  el.classList.remove('active');
-  el.innerHTML = '';
+function hideCelebration(){const e=document.getElementById('celebration');e.classList.remove('active');e.innerHTML=''}
+function celebrate(count=6){
+  const e=document.getElementById('celebration');e.innerHTML='';e.classList.add('active');
+  const c=['#EF4444','#F59E0B','#10B981','#3B82F6','#EC4899','#8B5CF6','#fff'];
+  for(let i=0;i<count;i++){const p=document.createElement('div');p.className='confetti';p.style.left=Math.random()*100+'%';p.style.top='-10px';p.style.background=pickRandom(c);p.style.width=(5+Math.random()*7)+'px';p.style.height=(5+Math.random()*7)+'px';p.style.animationDuration=(1.5+Math.random()*2)+'s';p.style.animationDelay=(Math.random()*.5)+'s';p.style.borderRadius=Math.random()>.5?'50%':'2px';e.appendChild(p)}
+  setTimeout(()=>{e.classList.remove('active');e.innerHTML=''},3000);
 }
-function celebrate(count=10){
-  const el = document.getElementById('celebration');
-  el.innerHTML = '';
-  el.classList.add('active');
-  const colors = ['#EF4444','#F59E0B','#10B981','#3B82F6','#EC4899','#8B5CF6','#fff'];
-  for(let i=0;i<count;i++){
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random()*100+'%';
-    c.style.top = '-10px';
-    c.style.background = pickRandom(colors);
-    c.style.width = (6+Math.random()*8)+'px';
-    c.style.height = (6+Math.random()*8)+'px';
-    c.style.animationDuration = (1.5+Math.random()*2)+'s';
-    c.style.animationDelay = (Math.random()*0.5)+'s';
-    c.style.borderRadius = Math.random()>.5?'50%':'2px';
-    el.appendChild(c);
+
+// ===== CALM CORNER =====
+function openCalmCorner(){
+  Sound.stopAll();
+  document.getElementById('calmCorner').classList.add('active');
+  Sound.calm();
+  speak('Tenang ya sayang, ambil napas pelan-pelan',.7,1.1);
+  mascotSet('idle','tenang ya 🐱');
+}
+function closeCalmCorner(e){
+  if(e.target===document.getElementById('calmCorner')){
+    document.getElementById('calmCorner').classList.remove('active');
+    Sound.stopAll();
+    mascotSet('idle');
   }
-  setTimeout(()=>{el.classList.remove('active');el.innerHTML='';},3000);
 }
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
+  Sound.init();
   renderLevelSelect();
+  renderStickers();
 });
 </script>
 </body>
